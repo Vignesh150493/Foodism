@@ -45,7 +45,8 @@ class MyAppState extends State<MyApp> {
           accentColor: Colors.deepPurple),
 //      home: AuthPage(),
       routes: {
-        '/': (BuildContext context) => HomePage(_products, _addProduct, _deleteProduct),
+        '/': (BuildContext context) =>
+            HomePage(_products, _addProduct, _deleteProduct),
         '/admin': (BuildContext context) => ProductAdmin(),
       },
       onGenerateRoute: (RouteSettings settings) {
@@ -56,11 +57,15 @@ class MyAppState extends State<MyApp> {
         if (pathElements[1] == 'product') {
           final int index = int.parse(pathElements[2]);
           return MaterialPageRoute<bool>(
-              builder: (context) =>
-                  ProductDetail(
-                      _products[index]['title'], _products[index]['image']));
+              builder: (context) => ProductDetail(
+                  _products[index]['title'], _products[index]['image']));
         }
         return null;
+      },
+      onUnknownRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
+            builder: (context) =>
+                HomePage(_products, _addProduct, _deleteProduct));
       },
     );
   }
