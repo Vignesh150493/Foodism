@@ -38,6 +38,7 @@ flutter:
 
   assets:
       - assets/food.jpg
+      - assets/background.jpg
 
   fonts:
     - family: Google

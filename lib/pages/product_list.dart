@@ -32,9 +32,37 @@ class ProductList extends StatelessWidget {
           SizedBox(
             height: 10.0,
           ),
-          Text(
-            products[index]['title'],
-            style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                products[index]['title'],
+                style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                width: 8.0,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.5),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).accentColor,
+                    borderRadius: BorderRadius.circular(5.0)),
+                child: Text(
+                  '\$${products[index]['price'].toString()}',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            ],
+          ),
+          DecoratedBox(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.5),
+              child: Text('Union Square, San Francisco'),
+            ),
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey, width: 1.0),
+                borderRadius: BorderRadius.circular(6.0)),
           ),
           ButtonBar(
             alignment: MainAxisAlignment.center,
