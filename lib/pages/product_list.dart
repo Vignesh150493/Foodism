@@ -29,7 +29,13 @@ class ProductList extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Image.asset(products[index]['image']),
-          Text(products[index]['title']),
+          SizedBox(
+            height: 10.0,
+          ),
+          Text(
+            products[index]['title'],
+            style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
+          ),
           ButtonBar(
             alignment: MainAxisAlignment.center,
             children: <Widget>[
