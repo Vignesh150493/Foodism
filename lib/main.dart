@@ -43,9 +43,9 @@ class MyAppState extends State<MyApp> {
           brightness: Brightness.light,
           primarySwatch: Colors.deepOrange,
           accentColor: Colors.deepPurple),
-//      home: AuthPage(),
       routes: {
-        '/': (BuildContext context) => HomePage(_products),
+        '/': (BuildContext context) => AuthPage(),
+        '/products': (BuildContext context) => HomePage(_products),
         '/admin': (BuildContext context) =>
             ProductAdmin(_addProduct, _deleteProduct),
       },
