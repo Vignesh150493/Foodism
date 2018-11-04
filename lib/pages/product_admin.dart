@@ -3,7 +3,6 @@ import 'product_create.dart';
 import 'product_list_new.dart';
 
 class ProductAdmin extends StatelessWidget {
-
   final Function addProduct;
   final Function deleteProduct;
 
@@ -22,6 +21,7 @@ class ProductAdmin extends StatelessWidget {
                 title: Text("Choose"),
               ),
               ListTile(
+                leading: Icon(Icons.shop),
                 title: Text("All Products"),
                 onTap: () {
                   Navigator.pushReplacementNamed(context, '/products');

@@ -3,10 +3,10 @@ import 'pages/auth.dart';
 import 'pages/product_admin.dart';
 import 'pages/home.dart';
 import 'pages/product_detail.dart';
-// import 'package:flutter/rendering.dart';
+//import 'package:flutter/rendering.dart';
 
 void main() {
-  // debugPaintSizeEnabled = true;
+//  debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
   runApp(MyApp());
@@ -59,7 +59,10 @@ class MyAppState extends State<MyApp> {
           final int index = int.parse(pathElements[2]);
           return MaterialPageRoute<bool>(
               builder: (context) => ProductDetail(
-                  _products[index]['title'], _products[index]['image']));
+                  _products[index]['title'],
+                  _products[index]['image'],
+                  _products[index]['price'],
+                  _products[index]['description']));
         }
         return null;
       },
