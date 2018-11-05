@@ -43,6 +43,7 @@ class MyAppState extends State<MyApp> {
           brightness: Brightness.light,
           primarySwatch: Colors.deepOrange,
           accentColor: Colors.deepPurple,
+          buttonColor: Colors.deepPurple,
           fontFamily: 'Google'),
       routes: {
         '/': (BuildContext context) => AuthPage(),
