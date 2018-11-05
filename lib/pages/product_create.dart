@@ -15,40 +15,44 @@ class _ProductCreateState extends State<ProductCreate> {
   String _titleValue = '';
   String _description = '';
   double _price = 0.0;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = MediaQuery.of(context).size.width;
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     final double targetPadding = deviceWidth - targetWidth;
+
     return Container(
-      width: targetWidth,
       margin: EdgeInsets.all(10.0),
-      child: ListView(
-        padding: EdgeInsets.symmetric(horizontal: targetPadding),
-        children: <Widget>[
-          _buildTitleTextField(),
-          _buildDescriptionTextField(),
-          _buildPriceTextField(),
-          SizedBox(
-            height: 10.0,
-          ),
-          RaisedButton(
-            child: Text(
-              'CREATE',
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: targetPadding),
+          children: <Widget>[
+            _buildTitleTextField(),
+            _buildDescriptionTextField(),
+            _buildPriceTextField(),
+            SizedBox(
+              height: 10.0,
             ),
-            textColor: Colors.white,
-            onPressed: _submitForm,
-          ),
-        ],
+            RaisedButton(
+              child: Text(
+                'CREATE',
+              ),
+              textColor: Colors.white,
+              onPressed: _submitForm,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTitleTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(labelText: 'Product Title'),
-      onChanged: (value) {
+      onSaved: (value) {
         setState(() {
           _titleValue = value;
         });
@@ -57,10 +61,10 @@ class _ProductCreateState extends State<ProductCreate> {
   }
 
   Widget _buildDescriptionTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(labelText: 'Product Description'),
       maxLines: 4,
-      onChanged: (value) {
+      onSaved: (value) {
         setState(() {
           _description = value;
         });
@@ -69,10 +73,10 @@ class _ProductCreateState extends State<ProductCreate> {
   }
 
   Widget _buildPriceTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(labelText: 'Product Price'),
       keyboardType: TextInputType.number,
-      onChanged: (value) {
+      onSaved: (value) {
         setState(() {
           _price = double.parse(value);
         });
@@ -81,6 +85,7 @@ class _ProductCreateState extends State<ProductCreate> {
   }
 
   _submitForm() {
+    _formKey.currentState.save();
     final Map<String, dynamic> product = {
       'title': _titleValue,
       'description': _description,
