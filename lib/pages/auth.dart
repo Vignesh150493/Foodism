@@ -9,63 +9,14 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  String _email;
-  String _password;
-  bool _acceptTerms = false;
+  final Map<String, dynamic> _formData = {
+    'email': null,
+    'password': null,
+    'acceptTerms': false,
+  };
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
 //  9444957235 - Jai cable n/w
-  DecorationImage _buildBackgroundImage() {
-    return DecorationImage(
-        colorFilter:
-            ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
-        //dstATop means, we are putting our color (Colors.black.withOpacity(0.5)), on top of the image.
-        image: AssetImage('assets/background.jpg'),
-        fit: BoxFit.cover);
-  }
-
-  Widget _buildEmailTextField() {
-    return TextField(
-      decoration: InputDecoration(
-          labelText: 'Email', filled: true, fillColor: Colors.white),
-      keyboardType: TextInputType.emailAddress,
-      onChanged: (value) {
-        setState(() {
-          _email = value;
-        });
-      },
-    );
-  }
-
-  Widget _buildPasswordTextField() {
-    return TextField(
-      decoration: InputDecoration(
-          labelText: 'Password', filled: true, fillColor: Colors.white),
-      obscureText: true,
-      onChanged: (value) {
-        setState(() {
-          _password = value;
-        });
-      },
-    );
-  }
-
-  Widget _buildAcceptConditionSwitch() {
-    return SwitchListTile(
-      value: _acceptTerms,
-      onChanged: (value) {
-        setState(() {
-          _acceptTerms = value;
-        });
-      },
-      title: Text('Accept T&C'),
-    );
-  }
-
-  void submitForm() {
-    print(_email);
-    print(_password);
-    Navigator.pushReplacementNamed(context, '/products');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,27 +35,93 @@ class _AuthPageState extends State<AuthPage> {
             child: SingleChildScrollView(
               child: Container(
                 width: targetWidth,
-                child: Column(
-                  children: <Widget>[
-                    _buildEmailTextField(),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    _buildPasswordTextField(),
-                    _buildAcceptConditionSwitch(),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    RaisedButton(
-                      textColor: Colors.white,
-                      child: Text("LOGIN"),
-                      onPressed: submitForm,
-                    ),
-                  ],
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      _buildEmailTextField(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      _buildPasswordTextField(),
+                      _buildAcceptConditionSwitch(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      RaisedButton(
+                        textColor: Colors.white,
+                        child: Text("LOGIN"),
+                        onPressed: submitForm,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ));
+  }
+
+  DecorationImage _buildBackgroundImage() {
+    return DecorationImage(
+        colorFilter:
+            ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
+        //dstATop means, we are putting our color (Colors.black.withOpacity(0.5)), on top of the image.
+        image: AssetImage('assets/background.jpg'),
+        fit: BoxFit.cover);
+  }
+
+  Widget _buildEmailTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+          labelText: 'Email', filled: true, fillColor: Colors.white),
+      keyboardType: TextInputType.emailAddress,
+      validator: (String value) {
+        if (value.isEmpty ||
+            !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+                .hasMatch(value)) {
+          return 'Please enter a valid email';
+        }
+      },
+      onSaved: (value) {
+        _formData['email'] = value;
+      },
+    );
+  }
+
+  Widget _buildPasswordTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+          labelText: 'Password', filled: true, fillColor: Colors.white),
+      obscureText: true,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Invalid password';
+        }
+      },
+      onSaved: (value) {
+        _formData['password'] = value;
+      },
+    );
+  }
+
+  Widget _buildAcceptConditionSwitch() {
+    return SwitchListTile(
+      value: _formData['acceptTerms'],
+      onChanged: (value) {
+        setState(() {
+          _formData['acceptTerms'] = value;
+        });
+      },
+      title: Text('Accept T&C'),
+    );
+  }
+
+  void submitForm() {
+    if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
+      return;
+    }
+    _formKey.currentState.save();
+    Navigator.pushReplacementNamed(context, '/products');
   }
 }
