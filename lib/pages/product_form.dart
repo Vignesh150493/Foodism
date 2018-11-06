@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
-class ProductCreate extends StatefulWidget {
+class ProductForm extends StatefulWidget {
   final Function addProduct;
+  final Function updateProduct;
+  final Map<String, dynamic> product;
+  final int productIndex;
 
-  ProductCreate(this.addProduct);
+  ProductForm(
+      {this.addProduct, this.updateProduct, this.product, this.productIndex});
 
   @override
-  _ProductCreateState createState() {
-    return new _ProductCreateState();
+  _ProductFormState createState() {
+    return new _ProductFormState();
   }
 }
 
-class _ProductCreateState extends State<ProductCreate> {
+class _ProductFormState extends State<ProductForm> {
   final Map<String, dynamic> _formData = {
     'title': null,
     'description': null,
@@ -26,7 +30,7 @@ class _ProductCreateState extends State<ProductCreate> {
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     final double targetPadding = deviceWidth - targetWidth;
 
-    return GestureDetector(
+    final Widget pageContent = GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
       },
@@ -55,10 +59,20 @@ class _ProductCreateState extends State<ProductCreate> {
         ),
       ),
     );
+
+    return widget.product == null
+        ? pageContent
+        : Scaffold(
+            appBar: AppBar(
+              title: Text('Edit Product'),
+            ),
+            body: pageContent,
+          );
   }
 
   Widget _buildTitleTextField() {
     return TextFormField(
+      initialValue: widget.product == null ? '' : widget.product['title'],
       decoration: InputDecoration(labelText: 'Product Title'),
       validator: (value) {
         if (value.isEmpty) {
@@ -73,6 +87,7 @@ class _ProductCreateState extends State<ProductCreate> {
 
   Widget _buildDescriptionTextField() {
     return TextFormField(
+      initialValue: widget.product == null ? '' : widget.product['description'],
       decoration: InputDecoration(labelText: 'Product Description'),
       validator: (value) {
         if (value.isEmpty) {
@@ -88,6 +103,8 @@ class _ProductCreateState extends State<ProductCreate> {
 
   Widget _buildPriceTextField() {
     return TextFormField(
+      initialValue:
+          widget.product == null ? '' : widget.product['price'].toString(),
       decoration: InputDecoration(labelText: 'Product Price'),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -107,7 +124,11 @@ class _ProductCreateState extends State<ProductCreate> {
       return;
     }
     _formKey.currentState.save();
-    widget.addProduct(_formData);
+    if (widget.product == null) {
+      widget.addProduct(_formData);
+    } else {
+      widget.updateProduct(widget.productIndex, _formData);
+    }
     Navigator.pushReplacementNamed(context, '/products');
   }
 }
