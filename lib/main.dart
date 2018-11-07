@@ -3,6 +3,7 @@ import 'pages/auth.dart';
 import 'pages/product_admin.dart';
 import 'pages/home.dart';
 import 'pages/product_detail.dart';
+import 'models/product.dart';
 //import 'package:flutter/rendering.dart';
 
 void main() {
@@ -20,16 +21,16 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  List<Map<String, dynamic>> _products = [];
+  List<Product> _products = [];
 
-  void _addProduct(Map<String, dynamic> product) {
+  void _addProduct(Product product) {
     setState(() {
       _products.add(product);
     });
     print(_products);
   }
 
-  void _updateProduct(int index, Map<String, dynamic> product) {
+  void _updateProduct(int index, Product product) {
     setState(() {
       _products[index] = product;
     });
@@ -54,8 +55,8 @@ class MyAppState extends State<MyApp> {
       routes: {
         '/': (BuildContext context) => AuthPage(),
         '/products': (BuildContext context) => HomePage(_products),
-        '/admin': (BuildContext context) =>
-            ProductAdmin(_addProduct, _updateProduct, _deleteProduct, _products),
+        '/admin': (BuildContext context) => ProductAdmin(
+            _addProduct, _updateProduct, _deleteProduct, _products),
       },
       onGenerateRoute: (RouteSettings settings) {
         final List<String> pathElements = settings.name.split('/');
@@ -66,10 +67,10 @@ class MyAppState extends State<MyApp> {
           final int index = int.parse(pathElements[2]);
           return MaterialPageRoute<bool>(
               builder: (context) => ProductDetail(
-                  _products[index]['title'],
-                  _products[index]['image'],
-                  _products[index]['price'],
-                  _products[index]['description']));
+                  _products[index].title,
+                  _products[index].image,
+                  _products[index].price,
+                  _products[index].description));
         }
         return null;
       },
