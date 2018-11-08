@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
+import 'package:scoped_model/scoped_model.dart';
+import '../scoped-models/products.dart';
 
 class ProductForm extends StatefulWidget {
   final Function addProduct;
@@ -60,17 +62,27 @@ class _ProductFormState extends State<ProductForm> {
               SizedBox(
                 height: 10.0,
               ),
-              RaisedButton(
-                child: Text(
-                  'CREATE',
-                ),
-                textColor: Colors.white,
-                onPressed: _submitForm,
-              ),
+              _buildSubmitButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    print("BuildSubmit Button");
+    return ScopedModelDescendant<ProductsScopedModel>(
+      builder: (context, widget, ProductsScopedModel model) {
+        print("BuildSubmit Button " + model.products.length.toString());
+        return RaisedButton(
+          child: Text(
+            'CREATE',
+          ),
+          textColor: Colors.white,
+          onPressed: () => _submitForm(model.addProduct, model.updateProduct),
+        );
+      },
     );
   }
 
@@ -123,19 +135,19 @@ class _ProductFormState extends State<ProductForm> {
     );
   }
 
-  _submitForm() {
+  void _submitForm(Function addProduct, Function updateProduct) {
     if (!_formKey.currentState.validate()) {
       return;
     }
     _formKey.currentState.save();
     if (widget.product == null) {
-      widget.addProduct(Product(
+      addProduct(Product(
           title: _formData['title'],
           description: _formData['description'],
           price: _formData['price'],
           image: _formData['image']));
     } else {
-      widget.updateProduct(
+      updateProduct(
           widget.productIndex,
           Product(
               title: _formData['title'],

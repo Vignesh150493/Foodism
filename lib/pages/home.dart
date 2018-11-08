@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/productwidgets/product_summary_list.dart';
-import '../models/product.dart';
 
 class HomePage extends StatelessWidget {
-  final List<Product> products;
-
-  HomePage(this.products);
-
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: Column(
@@ -37,6 +32,6 @@ class HomePage extends StatelessWidget {
             IconButton(icon: Icon(Icons.favorite), onPressed: () {})
           ],
         ),
-        body: ProductList(products));
+        body: ProductList());
   }
 }
