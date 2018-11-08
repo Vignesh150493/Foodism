@@ -5,7 +5,7 @@ import 'pages/home.dart';
 import 'pages/product_detail.dart';
 import 'models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'scoped-models/products.dart';
+import 'scoped-models/product_scoped_model.dart';
 //import 'package:flutter/rendering.dart';
 
 void main() {
@@ -50,7 +50,7 @@ class MyAppState extends State<MyApp> {
           if (pathElements[1] == 'product') {
             final int index = int.parse(pathElements[2]);
             return MaterialPageRoute<bool>(
-                builder: (context) => ProductDetail(null, null, null, null));
+                builder: (context) => ProductDetail(index));
           }
           return null;
         },

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import '../widgets/common/title_default.dart';
+import 'package:scoped_model/scoped_model.dart';
+import '../scoped-models/product_scoped_model.dart';
+import '../models/product.dart';
 
 class ProductDetail extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final double price;
-  final String description;
+  final int index;
 
-  ProductDetail(this.title, this.imageUrl, this.price, this.description);
+  ProductDetail(this.index);
 
-  Widget _buildAddressPriceRow() {
+  Widget _buildAddressPriceRow(double price) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -39,28 +39,33 @@ class ProductDetail extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(false);
       },
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-          ),
-          body: Column(
-            //Cross axis is horizontal centering
-            //Main axis is vertical
-            children: <Widget>[
-              Image.asset(imageUrl),
-              Container(
-                  padding: EdgeInsets.all(10.0), child: TitleDefault(title)),
-              _buildAddressPriceRow(),
-              Container(
-                child: Text(
-                  description,
-                  textAlign: TextAlign.center,
+      child: ScopedModelDescendant<ProductsScopedModel>(
+          builder: (context, widget, ProductsScopedModel model) {
+        final Product product = model.products[index];
+        return Scaffold(
+            appBar: AppBar(
+              title: Text(product.title),
+            ),
+            body: Column(
+              //Cross axis is horizontal centering
+              //Main axis is vertical
+              children: <Widget>[
+                Image.asset(product.image),
+                Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: TitleDefault(product.title)),
+                _buildAddressPriceRow(product.price),
+                Container(
+                  child: Text(
+                    product.description,
+                    textAlign: TextAlign.center,
+                  ),
+                  padding: EdgeInsets.all(10.0),
+                  margin: EdgeInsets.only(top: 10.0),
                 ),
-                padding: EdgeInsets.all(10.0),
-                margin: EdgeInsets.only(top: 10.0),
-              ),
-            ],
-          )),
+              ],
+            ));
+      }),
     );
   }
 }

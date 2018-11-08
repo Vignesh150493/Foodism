@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'product_card.dart';
 import 'package:scoped_model/scoped_model.dart';
-import '../../scoped-models/products.dart';
+import '../../scoped-models/product_scoped_model.dart';
 import '../../models/product.dart';
 
 class ProductList extends StatelessWidget {

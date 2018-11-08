@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'product_form.dart';
 import 'product_list.dart';
-import '../models/product.dart';
 
 class ProductAdmin extends StatelessWidget {
   Widget _buildDrawer(BuildContext context) {
@@ -45,7 +44,7 @@ class ProductAdmin extends StatelessWidget {
         ),
         body: TabBarView(children: <Widget>[
           ProductForm(),
-          ProductListPage(null, null, null),
+          ProductListPage(),
         ]),
       ),
     );
