@@ -3,6 +3,8 @@ import 'price_tag.dart';
 import '../common/title_default.dart';
 import 'address_tag.dart';
 import '../../models/product.dart';
+import 'package:scoped_model/scoped_model.dart';
+import '../../scoped-models/product_scoped_model.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -32,11 +34,19 @@ class ProductCard extends StatelessWidget {
             color: Theme.of(context).accentColor,
             onPressed: () => Navigator.pushNamed<bool>(
                 context, '/product/' + index.toString())),
-        IconButton(
-            icon: Icon(Icons.favorite_border),
-            color: Colors.red,
-            onPressed: () => Navigator.pushNamed<bool>(
-                context, '/product/' + index.toString()))
+        ScopedModelDescendant(
+          builder: (context, widget, ProductsScopedModel model) {
+            return IconButton(
+                icon: Icon(model.products[index].isFavourite
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+                color: Colors.red,
+                onPressed: () {
+                  model.selectProduct(index);
+                  model.toggleProductFavouriteStatus();
+                });
+          },
+        ),
       ],
     );
   }
