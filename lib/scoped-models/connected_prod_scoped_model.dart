@@ -2,7 +2,9 @@ import 'package:scoped_model/scoped_model.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 
-class ConnectedProdScopedModel extends Model {
+//Note we can seperate the models by making them a lib
+//https://stackoverflow.com/questions/13876879/how-do-you-namespace-a-dart-class
+mixin ConnectedProdScopedModel on Model {
   List<Product> _products = [];
   int _selProdIndex;
   User _authenticatedUser;
@@ -21,7 +23,7 @@ class ConnectedProdScopedModel extends Model {
   }
 }
 
-class ProductsScopedModel extends ConnectedProdScopedModel {
+mixin ProductsScopedModel on ConnectedProdScopedModel {
   bool _showFavourites = false;
 
   List<Product> get allProducts {
@@ -93,7 +95,7 @@ class ProductsScopedModel extends ConnectedProdScopedModel {
   }
 }
 
-class UserScopedModel extends ConnectedProdScopedModel {
+mixin UserScopedModel on ConnectedProdScopedModel {
   void login(String email, String password) {
     _authenticatedUser = User(id: 'asd', email: email, password: password);
   }
