@@ -23,12 +23,12 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-
+  final MainScopedModel model = MainScopedModel();
   @override
   Widget build(BuildContext context) {
     return ScopedModel<MainScopedModel>(
       //Model would be passed to materialapp and all its children.
-      model: MainScopedModel(),
+      model: model,
       child: MaterialApp(
         // debugShowMaterialGrid: true,
         theme: ThemeData(
@@ -39,7 +39,7 @@ class MyAppState extends State<MyApp> {
             fontFamily: 'Google'),
         routes: {
           '/': (BuildContext context) => AuthPage(),
-          '/products': (BuildContext context) => HomePage(),
+          '/products': (BuildContext context) => HomePage(model),
           '/admin': (BuildContext context) => ProductAdmin(),
         },
         onGenerateRoute: (RouteSettings settings) {
@@ -55,7 +55,7 @@ class MyAppState extends State<MyApp> {
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
-          return MaterialPageRoute(builder: (context) => HomePage());
+          return MaterialPageRoute(builder: (context) => HomePage(model));
         },
       ),
     );

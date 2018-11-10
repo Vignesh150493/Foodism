@@ -1,6 +1,8 @@
 import 'package:scoped_model/scoped_model.dart';
 import '../models/product.dart';
 import '../models/user.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 //Note we can seperate the models by making them a lib
 //https://stackoverflow.com/questions/13876879/how-do-you-namespace-a-dart-class
@@ -11,15 +13,28 @@ mixin ConnectedProdScopedModel on Model {
 
   void addProduct(
       String title, String description, String image, double price) {
-    final Product newProduct = Product(
-        title: title,
-        description: description,
-        price: price,
-        image: image,
-        userEmail: _authenticatedUser.email,
-        userId: _authenticatedUser.id);
-    _products.add(newProduct);
-    notifyListeners();
+    final Map<String, dynamic> productData = {
+      'title': title,
+      'description': description,
+      'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
+      'price': price,
+    };
+    http
+        .post('https://foodie-products.firebaseio.com/products.json',
+            body: json.encode(productData))
+        .then((http.Response response) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final Product newProduct = Product(
+          id: responseData['name'],
+          title: title,
+          description: description,
+          price: price,
+          image: image,
+          userEmail: _authenticatedUser.email,
+          userId: _authenticatedUser.id);
+      _products.add(newProduct);
+      notifyListeners();
+    });
   }
 }
 
@@ -63,6 +78,14 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
   void deleteProduct() {
     _products.removeAt(_selProdIndex);
     notifyListeners();
+  }
+
+  void fetchProducts() {
+    http
+        .get('https://foodie-products.firebaseio.com/products.json')
+        .then((http.Response response) {
+      print(response.body);
+    });
   }
 
   void toggleProductFavouriteStatus() {

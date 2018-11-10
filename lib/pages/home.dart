@@ -3,7 +3,20 @@ import '../widgets/productwidgets/product_summary_list.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped-models/main_scoped_model.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  final MainScopedModel model;
+
+  HomePage(this.model);
+
+  @override
+  HomePageState createState() {
+    return new HomePageState();
+  }
+}
+
+class HomePageState extends State<HomePage> {
+
+
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: Column(
@@ -45,5 +58,11 @@ class HomePage extends StatelessWidget {
           ],
         ),
         body: ProductList());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.model.fetchProducts();
   }
 }
