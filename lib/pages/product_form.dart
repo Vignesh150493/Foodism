@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
-import '../scoped-models/product_scoped_model.dart';
+import '../scoped-models/main_scoped_model.dart';
 
 class ProductForm extends StatefulWidget {
   @override
@@ -21,8 +21,8 @@ class _ProductFormState extends State<ProductForm> {
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<ProductsScopedModel>(
-      builder: (context, widget, ProductsScopedModel model) {
+    return ScopedModelDescendant<MainScopedModel>(
+      builder: (context, widget, MainScopedModel model) {
         final Widget pageContent =
             _buildPageContent(context, model.selectedProduct);
         return model.selectedProductIndex == null
@@ -67,15 +67,15 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   Widget _buildSubmitButton() {
-    return ScopedModelDescendant<ProductsScopedModel>(
-      builder: (context, widget, ProductsScopedModel model) {
-        print("BuildSubmit Button " + model.products.length.toString());
+    return ScopedModelDescendant<MainScopedModel>(
+      builder: (context, widget, MainScopedModel model) {
+        print("BuildSubmit Button " + model.allProducts.length.toString());
         return RaisedButton(
           child: Text(
             'CREATE',
           ),
           textColor: Colors.white,
-          onPressed: () => _submitForm(model.addProduct, model.updateProduct,
+          onPressed: () => _submitForm(model.addProduct, model.updateProduct, model.selectProduct,
               model.selectedProductIndex),
         );
       },
@@ -130,26 +130,29 @@ class _ProductFormState extends State<ProductForm> {
     );
   }
 
-  void _submitForm(Function addProduct, Function updateProduct,
+  void _submitForm(Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
       return;
     }
     _formKey.currentState.save();
     if (selectedProductIndex == null) {
-      addProduct(Product(
-          title: _formData['title'],
-          description: _formData['description'],
-          price: _formData['price'],
-          image: _formData['image']));
+      addProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['image'],
+        _formData['price'],
+      );
     } else {
       updateProduct(
-          Product(
-              title: _formData['title'],
-              description: _formData['description'],
-              price: _formData['price'],
-              image: _formData['image']));
+        _formData['title'],
+        _formData['description'],
+        _formData['image'],
+        _formData['price'],
+      );
     }
-    Navigator.pushReplacementNamed(context, '/products');
+    Navigator.pushReplacementNamed(context, '/products').then((_)  {
+      setSelectedProduct(null);
+    });
   }
 }

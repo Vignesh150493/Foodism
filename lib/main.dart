@@ -5,7 +5,7 @@ import 'pages/home.dart';
 import 'pages/product_detail.dart';
 import 'models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'scoped-models/product_scoped_model.dart';
+import 'scoped-models/main_scoped_model.dart';
 //import 'package:flutter/rendering.dart';
 
 void main() {
@@ -26,9 +26,9 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModel<ProductsScopedModel>(
+    return ScopedModel<MainScopedModel>(
       //Model would be passed to materialapp and all its children.
-      model: ProductsScopedModel(),
+      model: MainScopedModel(),
       child: MaterialApp(
         // debugShowMaterialGrid: true,
         theme: ThemeData(

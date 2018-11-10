@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/common/title_default.dart';
 import 'package:scoped_model/scoped_model.dart';
-import '../scoped-models/product_scoped_model.dart';
+import '../scoped-models/main_scoped_model.dart';
 import '../models/product.dart';
 
 class ProductDetail extends StatelessWidget {
@@ -39,9 +39,9 @@ class ProductDetail extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(false);
       },
-      child: ScopedModelDescendant<ProductsScopedModel>(
-          builder: (context, widget, ProductsScopedModel model) {
-        final Product product = model.products[index];
+      child: ScopedModelDescendant<MainScopedModel>(
+          builder: (context, widget, MainScopedModel model) {
+        final Product product = model.allProducts[index];
         return Scaffold(
             appBar: AppBar(
               title: Text(product.title),
