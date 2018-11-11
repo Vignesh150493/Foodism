@@ -3,7 +3,25 @@ import 'product_form.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped-models/main_scoped_model.dart';
 
-class ProductListPage extends StatelessWidget {
+class ProductListPage extends StatefulWidget {
+  final MainScopedModel model;
+
+  ProductListPage(this.model);
+
+  @override
+  ProductListPageState createState() {
+    return new ProductListPageState();
+  }
+}
+
+class ProductListPageState extends State<ProductListPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    widget.model.fetchProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainScopedModel>(
@@ -33,7 +51,8 @@ class ProductListPage extends StatelessWidget {
                 children: <Widget>[
                   ListTile(
                     leading: CircleAvatar(
-                      backgroundImage: NetworkImage(model.allProducts[index].image),
+                      backgroundImage:
+                          NetworkImage(model.allProducts[index].image),
                     ),
                     title: Text(model.allProducts[index].title),
                     subtitle:

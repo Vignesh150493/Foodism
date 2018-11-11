@@ -70,21 +70,49 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     return _products[_selProdIndex];
   }
 
-  void updateProduct(
+  Future<Null> updateProduct(
       String title, String description, String image, double price) {
-    _products[_selProdIndex] = Product(
-        title: title,
-        description: description,
-        price: price,
-        image: image,
-        userEmail: selectedProduct.userEmail,
-        userId: selectedProduct.userId);
+    _isLoading = true;
     notifyListeners();
+    final Map<String, dynamic> dataToUpdate = {
+      'title': title,
+      'description': description,
+      'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
+      'price': price,
+      'userEmail': selectedProduct.userEmail,
+      'userId': selectedProduct.userId,
+    };
+    return http
+        .put(
+            'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json',
+            body: json.encode(dataToUpdate))
+        .then((http.Response response) {
+      _isLoading = false;
+      _products[_selProdIndex] = Product(
+          id: selectedProduct.id,
+          title: title,
+          description: description,
+          price: price,
+          image: image,
+          userEmail: selectedProduct.userEmail,
+          userId: selectedProduct.userId);
+      notifyListeners();
+    });
   }
 
   void deleteProduct() {
+    _isLoading = true;
+    final deletedProductId = selectedProduct.id;
     _products.removeAt(_selProdIndex);
+    _selProdIndex = null;
     notifyListeners();
+    http
+        .delete(
+            'https://foodie-products.firebaseio.com/products/$deletedProductId.json')
+        .then((http.Response response) {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   void fetchProducts() {

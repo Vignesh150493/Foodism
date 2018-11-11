@@ -50,7 +50,7 @@ class ProductDetail extends StatelessWidget {
               //Cross axis is horizontal centering
               //Main axis is vertical
               children: <Widget>[
-                Image.asset(product.image),
+                Image.network(product.image),
                 Container(
                     padding: EdgeInsets.all(10.0),
                     child: TitleDefault(product.title)),
