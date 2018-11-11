@@ -15,8 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-
-
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: Column(
@@ -35,6 +33,21 @@ class HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  Widget _buildProductSummaryList() {
+    return ScopedModelDescendant(
+        builder: (context, widget, MainScopedModel model) {
+      Widget content = Center(
+        child: Text("No Products found"),
+      );
+      if (model.displayedProducts.length > 0 && !model.isLoading) {
+        content = ProductList();
+      } else if (model.isLoading) {
+        content = Center(child: CircularProgressIndicator());
+      }
+      return content;
+    });
   }
 
   @override
@@ -57,7 +70,7 @@ class HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: ProductList());
+        body: _buildProductSummaryList());
   }
 
   @override

@@ -3,6 +3,7 @@ import '../models/product.dart';
 import '../models/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 
 //Note we can seperate the models by making them a lib
 //https://stackoverflow.com/questions/13876879/how-do-you-namespace-a-dart-class
@@ -10,16 +11,21 @@ mixin ConnectedProdScopedModel on Model {
   List<Product> _products = [];
   int _selProdIndex;
   User _authenticatedUser;
+  bool _isLoading = false;
 
-  void addProduct(
+  Future<Null> addProduct(
       String title, String description, String image, double price) {
+    _isLoading = true;
+    notifyListeners();
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
       'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
       'price': price,
+      'userEmail': _authenticatedUser.email,
+      'userId': _authenticatedUser.id,
     };
-    http
+    return http
         .post('https://foodie-products.firebaseio.com/products.json',
             body: json.encode(productData))
         .then((http.Response response) {
@@ -33,6 +39,7 @@ mixin ConnectedProdScopedModel on Model {
           userEmail: _authenticatedUser.email,
           userId: _authenticatedUser.id);
       _products.add(newProduct);
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -81,10 +88,32 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
   }
 
   void fetchProducts() {
+    _isLoading = true;
+    notifyListeners();
     http
         .get('https://foodie-products.firebaseio.com/products.json')
         .then((http.Response response) {
-      print(response.body);
+      final List<Product> fetchedProdList = [];
+      final Map<String, dynamic> productListData = json.decode(response.body);
+      if (productListData == null) {
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+      productListData.forEach((String productId, dynamic productMap) {
+        final Product product = Product(
+            id: productId,
+            title: productMap['title'],
+            description: productMap['description'],
+            price: productMap['price'],
+            image: productMap['image'],
+            userEmail: productMap['userEmail'],
+            userId: productMap['userId']);
+        fetchedProdList.add(product);
+      });
+      _products = fetchedProdList;
+      _isLoading = false;
+      notifyListeners();
     });
   }
 
@@ -121,5 +150,11 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 mixin UserScopedModel on ConnectedProdScopedModel {
   void login(String email, String password) {
     _authenticatedUser = User(id: 'asd', email: email, password: password);
+  }
+}
+
+mixin UtilityScopedModel on ConnectedProdScopedModel {
+  bool get isLoading {
+    return _isLoading;
   }
 }

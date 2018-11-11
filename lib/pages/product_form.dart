@@ -70,14 +70,21 @@ class _ProductFormState extends State<ProductForm> {
     return ScopedModelDescendant<MainScopedModel>(
       builder: (context, widget, MainScopedModel model) {
         print("BuildSubmit Button " + model.allProducts.length.toString());
-        return RaisedButton(
-          child: Text(
-            'CREATE',
-          ),
-          textColor: Colors.white,
-          onPressed: () => _submitForm(model.addProduct, model.updateProduct, model.selectProduct,
-              model.selectedProductIndex),
-        );
+        return model.isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : RaisedButton(
+                child: Text(
+                  'CREATE',
+                ),
+                textColor: Colors.white,
+                onPressed: () => _submitForm(
+                    model.addProduct,
+                    model.updateProduct,
+                    model.selectProduct,
+                    model.selectedProductIndex),
+              );
       },
     );
   }
@@ -130,7 +137,8 @@ class _ProductFormState extends State<ProductForm> {
     );
   }
 
-  void _submitForm(Function addProduct, Function updateProduct, Function setSelectedProduct,
+  void _submitForm(
+      Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
       return;
@@ -142,7 +150,11 @@ class _ProductFormState extends State<ProductForm> {
         _formData['description'],
         _formData['image'],
         _formData['price'],
-      );
+      ).then((_) {
+        Navigator.pushReplacementNamed(context, '/products').then((_) {
+          setSelectedProduct(null);
+        });
+      });
     } else {
       updateProduct(
         _formData['title'],
@@ -151,8 +163,5 @@ class _ProductFormState extends State<ProductForm> {
         _formData['price'],
       );
     }
-    Navigator.pushReplacementNamed(context, '/products').then((_)  {
-      setSelectedProduct(null);
-    });
   }
 }
