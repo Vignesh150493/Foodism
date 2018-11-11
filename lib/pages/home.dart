@@ -38,15 +38,27 @@ class HomePageState extends State<HomePage> {
   Widget _buildProductSummaryList() {
     return ScopedModelDescendant(
         builder: (context, widget, MainScopedModel model) {
-      Widget content = Center(
-        child: Text("No Products found"),
+      //Pull to refresh requires a scrollable view dude!
+      //Refer [https://stackoverflow.com/questions/50195259/refresh-indicator-without-scrollview]
+      Widget content = SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Container(
+          child: Center(
+            child: Text("No Products found"),
+          ),
+          height: MediaQuery.of(context).size.height,
+        ),
       );
+
       if (model.displayedProducts.length > 0 && !model.isLoading) {
         content = ProductList();
       } else if (model.isLoading) {
         content = Center(child: CircularProgressIndicator());
       }
-      return content;
+      return RefreshIndicator(
+        child: content,
+        onRefresh: model.fetchProducts,
+      );
     });
   }
 
