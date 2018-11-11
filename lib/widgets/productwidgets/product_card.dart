@@ -5,6 +5,7 @@ import 'address_tag.dart';
 import '../../models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../../scoped-models/main_scoped_model.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -56,7 +57,13 @@ class ProductCard extends StatelessWidget {
     return Card(
       child: Column(
         children: <Widget>[
-          Image.network(product.image),
+          FadeInImage.memoryNetwork(
+            image: product.image,
+            height: 300.0,
+            fit: BoxFit.cover,
+            fadeInCurve: Curves.easeIn,
+            placeholder: kTransparentImage,
+          ),
           SizedBox(
             height: 10.0,
           ),
