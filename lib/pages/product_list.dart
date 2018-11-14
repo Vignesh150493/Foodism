@@ -15,7 +15,6 @@ class ProductListPage extends StatefulWidget {
 }
 
 class ProductListPageState extends State<ProductListPage> {
-
   @override
   void initState() {
     super.initState();
@@ -43,7 +42,7 @@ class ProductListPageState extends State<ProductListPage> {
               key: Key(model.allProducts[index].title),
               onDismissed: (dismissDirection) {
                 if (dismissDirection == DismissDirection.endToStart) {
-                  model.selectProduct(index);
+                  model.selectProduct(model.allProducts[index].id);
                   model.deleteProduct();
                 }
               },
@@ -78,7 +77,7 @@ class ProductListPageState extends State<ProductListPage> {
     return IconButton(
         icon: Icon(Icons.edit),
         onPressed: () {
-          model.selectProduct(index);
+          model.selectProduct(model.allProducts[index].id);
           Navigator.of(context).push(MaterialPageRoute(builder: (context) {
             return ProductForm();
           })).then((_) {

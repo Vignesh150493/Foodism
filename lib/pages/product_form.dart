@@ -25,7 +25,7 @@ class _ProductFormState extends State<ProductForm> {
       builder: (context, widget, MainScopedModel model) {
         final Widget pageContent =
             _buildPageContent(context, model.selectedProduct);
-        return model.selectedProductIndex == null
+        return model.selectedProductIndex == -1
             ? pageContent
             : Scaffold(
                 appBar: AppBar(
@@ -144,7 +144,7 @@ class _ProductFormState extends State<ProductForm> {
       return;
     }
     _formKey.currentState.save();
-    if (selectedProductIndex == null) {
+    if (selectedProductIndex == -1) {
       addProduct(
         _formData['title'],
         _formData['description'],

@@ -9,7 +9,7 @@ import 'dart:async';
 //https://stackoverflow.com/questions/13876879/how-do-you-namespace-a-dart-class
 mixin ConnectedProdScopedModel on Model {
   List<Product> _products = [];
-  int _selProdIndex;
+  String _selProdId;
   User _authenticatedUser;
   bool _isLoading = false;
 
@@ -59,15 +59,23 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     return List.from(_products);
   }
 
-  int get selectedProductIndex {
-    return _selProdIndex;
+  String get selectedProductId {
+    return _selProdId;
   }
 
   Product get selectedProduct {
-    if (_selProdIndex == null) {
+    if (_selProdId == null) {
       return null;
     }
-    return _products[_selProdIndex];
+    return _products.firstWhere((Product product) {
+      return product.id == _selProdId;
+    });
+  }
+
+  int get selectedProductIndex {
+    return _products.indexWhere((Product product) {
+      return product.id == _selProdId;
+    });
   }
 
   Future<Null> updateProduct(
@@ -88,7 +96,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
             body: json.encode(dataToUpdate))
         .then((http.Response response) {
       _isLoading = false;
-      _products[_selProdIndex] = Product(
+      _products[selectedProductIndex] = Product(
           id: selectedProduct.id,
           title: title,
           description: description,
@@ -103,8 +111,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
   void deleteProduct() {
     _isLoading = true;
     final deletedProductId = selectedProduct.id;
-    _products.removeAt(_selProdIndex);
-    _selProdIndex = null;
+    _products.removeAt(selectedProductIndex);
+    _selProdId = null;
     notifyListeners();
     http
         .delete(
@@ -142,12 +150,14 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
       _products = fetchedProdList;
       _isLoading = false;
       notifyListeners();
+      _selProdId = null;
     });
   }
 
   void toggleProductFavouriteStatus() {
     final bool isFavourite = selectedProduct.isFavourite;
     _products[selectedProductIndex] = Product(
+        id: selectedProduct.id,
         title: selectedProduct.title,
         description: selectedProduct.description,
         price: selectedProduct.price,
@@ -158,11 +168,11 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
   }
 
-  void selectProduct(int index) {
-    _selProdIndex = index;
-    if (index != null) {
-      notifyListeners();
-    }
+  void selectProduct(String productId) {
+    _selProdId = productId;
+//    if (index != null) {
+    notifyListeners();
+//    }
   }
 
   void toggleDisplayMode() {
