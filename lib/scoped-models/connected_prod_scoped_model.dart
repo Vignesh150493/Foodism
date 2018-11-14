@@ -12,47 +12,6 @@ mixin ConnectedProdScopedModel on Model {
   String _selProdId;
   User _authenticatedUser;
   bool _isLoading = false;
-
-  Future<bool> addProduct(
-      String title, String description, String image, double price) {
-    _isLoading = true;
-    notifyListeners();
-    final Map<String, dynamic> productData = {
-      'title': title,
-      'description': description,
-      'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
-      'price': price,
-      'userEmail': _authenticatedUser.email,
-      'userId': _authenticatedUser.id,
-    };
-    return http
-        .post('https://foodie-products.firebaseio.com/products',
-            body: json.encode(productData))
-        .then((http.Response response) {
-          if (response.statusCode != 200 && response.statusCode != 201) {
-            _isLoading = false;
-            notifyListeners();
-            return false;
-          }
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      final Product newProduct = Product(
-          id: responseData['name'],
-          title: title,
-          description: description,
-          price: price,
-          image: image,
-          userEmail: _authenticatedUser.email,
-          userId: _authenticatedUser.id);
-      _products.add(newProduct);
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    }).catchError((error) {
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    });
-  }
 }
 
 mixin ProductsScopedModel on ConnectedProdScopedModel {
@@ -88,6 +47,49 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
+  Future<bool> addProduct(
+      String title, String description, String image, double price) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> productData = {
+      'title': title,
+      'description': description,
+      'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
+      'price': price,
+      'userEmail': _authenticatedUser.email,
+      'userId': _authenticatedUser.id,
+    };
+
+    try {
+      final http.Response response = await http.post(
+          'https://foodie-products.firebaseio.com/products.json',
+          body: json.encode(productData));
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final Product newProduct = Product(
+          id: responseData['name'],
+          title: title,
+          description: description,
+          price: price,
+          image: image,
+          userEmail: _authenticatedUser.email,
+          userId: _authenticatedUser.id);
+      _products.add(newProduct);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+  
   Future<bool> updateProduct(
       String title, String description, String image, double price) {
     _isLoading = true;
