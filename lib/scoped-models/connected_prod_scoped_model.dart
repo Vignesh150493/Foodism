@@ -13,7 +13,7 @@ mixin ConnectedProdScopedModel on Model {
   User _authenticatedUser;
   bool _isLoading = false;
 
-  Future<Null> addProduct(
+  Future<bool> addProduct(
       String title, String description, String image, double price) {
     _isLoading = true;
     notifyListeners();
@@ -26,9 +26,14 @@ mixin ConnectedProdScopedModel on Model {
       'userId': _authenticatedUser.id,
     };
     return http
-        .post('https://foodie-products.firebaseio.com/products.json',
+        .post('https://foodie-products.firebaseio.com/products',
             body: json.encode(productData))
         .then((http.Response response) {
+          if (response.statusCode != 200 && response.statusCode != 201) {
+            _isLoading = false;
+            notifyListeners();
+            return false;
+          }
       final Map<String, dynamic> responseData = json.decode(response.body);
       final Product newProduct = Product(
           id: responseData['name'],
@@ -41,6 +46,11 @@ mixin ConnectedProdScopedModel on Model {
       _products.add(newProduct);
       _isLoading = false;
       notifyListeners();
+      return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     });
   }
 }
@@ -78,7 +88,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  Future<Null> updateProduct(
+  Future<bool> updateProduct(
       String title, String description, String image, double price) {
     _isLoading = true;
     notifyListeners();
@@ -105,21 +115,31 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           userEmail: selectedProduct.userEmail,
           userId: selectedProduct.userId);
       notifyListeners();
+      return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     });
   }
 
-  void deleteProduct() {
+  Future<bool> deleteProduct() {
     _isLoading = true;
     final deletedProductId = selectedProduct.id;
     _products.removeAt(selectedProductIndex);
     _selProdId = null;
     notifyListeners();
-    http
+    return http
         .delete(
             'https://foodie-products.firebaseio.com/products/$deletedProductId.json')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
+      return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     });
   }
 
@@ -128,7 +148,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
     return http
         .get('https://foodie-products.firebaseio.com/products.json')
-        .then((http.Response response) {
+        .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> productListData = json.decode(response.body);
       if (productListData == null) {
@@ -151,6 +171,10 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
       _isLoading = false;
       notifyListeners();
       _selProdId = null;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return;
     });
   }
 
