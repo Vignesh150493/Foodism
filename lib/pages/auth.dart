@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import '../scoped-models/main_scoped_model.dart';
 import 'package:scoped_model/scoped_model.dart';
-
-enum AuthMode {
-  SIGNUP,
-  LOGIN,
-}
+import '../models/auth.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -84,7 +80,7 @@ class _AuthPageState extends State<AuthPage> {
                                       ? "LOGIN"
                                       : "SIGNUP"),
                                   onPressed: () =>
-                                      submitForm(model.login, model.signup),
+                                      submitForm(model.authenticate),
                                 );
                         },
                       ),
@@ -166,35 +162,33 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void submitForm(Function login, Function signup) async {
+  void submitForm(Function authenticate) async {
     if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
       return;
     }
     _formKey.currentState.save();
-    if (_authMode == AuthMode.LOGIN) {
-      login(_formData['email'], _formData['password']);
+    Map<String, dynamic> successInfo;
+    successInfo = await authenticate(
+        _formData['email'], _formData['password'], _authMode);
+
+    if (successInfo['success']) {
+      Navigator.pushReplacementNamed(context, '/products');
     } else {
-      final Map<String, dynamic> successInfo =
-          await signup(_formData['email'], _formData['password']);
-      if (successInfo['success']) {
-        Navigator.pushReplacementNamed(context, '/products');
-      } else {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('ERROR'),
-                content: Text(successInfo['message']),
-                actions: <Widget>[
-                  FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('OK')),
-                ],
-              );
-            });
-      }
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('ERROR'),
+              content: Text(successInfo['message']),
+              actions: <Widget>[
+                FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK')),
+              ],
+            );
+          });
     }
   }
 }

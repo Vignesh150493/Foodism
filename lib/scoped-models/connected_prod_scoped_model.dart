@@ -1,6 +1,7 @@
 import 'package:scoped_model/scoped_model.dart';
 import '../models/product.dart';
 import '../models/user.dart';
+import '../models/auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -212,29 +213,42 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 }
 
 mixin UserScopedModel on ConnectedProdScopedModel {
-  void login(String email, String password) {
-    _authenticatedUser = User(id: 'asd', email: email, password: password);
-  }
-
-  Future<Map<String, dynamic>> signup(String email, String password) async {
+  Future<Map<String, dynamic>> authenticate(String email, String password,
+      [AuthMode mode = AuthMode.LOGIN]) async {
     _isLoading = true;
     notifyListeners();
+//    _authenticatedUser = User(id: 'asd', email: email, password: password);
     Map<String, dynamic> authData = {
       'email': email,
       'password': password,
       'returnSecureToken': true,
     };
-    final http.Response response = await http.post(
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyDiVlj1fMw7dYgZPuZpgP4DVl3xOFWnl1w",
-      body: json.encode(authData),
-      headers: {'Content-Type': 'application/json'},
-    );
+    http.Response response;
+    if (mode == AuthMode.LOGIN) {
+      response = await http.post(
+          'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyDiVlj1fMw7dYgZPuZpgP4DVl3xOFWnl1w',
+          body: json.encode(authData),
+          headers: {
+            'Content-Type': "application/json",
+          });
+    } else {
+      response = await http.post(
+        "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyDiVlj1fMw7dYgZPuZpgP4DVl3xOFWnl1w",
+        body: json.encode(authData),
+        headers: {'Content-Type': 'application/json'},
+      );
+    }
+
     final Map<String, dynamic> responsedata = json.decode(response.body);
     bool hasError = true;
     String message = 'Something went wrong';
     if (responsedata.containsKey('idToken')) {
       hasError = false;
       message = 'Authentication Succeeded';
+    } else if (responsedata['error']['message'] == 'EMAIL_NOT_FOUND') {
+      message = 'This email was not found';
+    } else if (responsedata['error']['message'] == 'INVALID_PASSWORD') {
+      message = 'This password in incorrect';
     } else if (responsedata['error']['message'] == 'EMAIL_EXISTS') {
       message = 'This email already exists';
     }
