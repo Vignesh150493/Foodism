@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../scoped-models/main_scoped_model.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+enum AuthMode {
+  SIGNUP,
+  LOGIN,
+}
+
 class AuthPage extends StatefulWidget {
   @override
   _AuthPageState createState() {
@@ -16,6 +21,8 @@ class _AuthPageState extends State<AuthPage> {
     'acceptTerms': false,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _passwordTextController = TextEditingController();
+  AuthMode _authMode = AuthMode.LOGIN;
 
   @override
   Widget build(BuildContext context) {
@@ -43,17 +50,42 @@ class _AuthPageState extends State<AuthPage> {
                         height: 10.0,
                       ),
                       _buildPasswordTextField(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      _authMode == AuthMode.SIGNUP
+                          ? _buildPasswordConfirmTextField()
+                          : Container(),
                       _buildAcceptConditionSwitch(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      FlatButton(
+                        child: Text(
+                            'Switch to ${_authMode == AuthMode.LOGIN ? 'SignUp' : 'Login'}'),
+                        onPressed: () {
+                          setState(() {
+                            _authMode = _authMode == AuthMode.LOGIN
+                                ? AuthMode.SIGNUP
+                                : AuthMode.LOGIN;
+                          });
+                        },
+                      ),
                       SizedBox(
                         height: 10.0,
                       ),
                       ScopedModelDescendant(
                         builder: (context, widget, MainScopedModel model) {
-                          return RaisedButton(
-                            textColor: Colors.white,
-                            child: Text("LOGIN"),
-                            onPressed: () => submitForm(model.login),
-                          );
+                          return model.isLoading
+                              ? CircularProgressIndicator()
+                              : RaisedButton(
+                                  textColor: Colors.white,
+                                  child: Text(_authMode == AuthMode.LOGIN
+                                      ? "LOGIN"
+                                      : "SIGNUP"),
+                                  onPressed: () =>
+                                      submitForm(model.login, model.signup),
+                                );
                         },
                       ),
                     ],
@@ -97,6 +129,7 @@ class _AuthPageState extends State<AuthPage> {
       decoration: InputDecoration(
           labelText: 'Password', filled: true, fillColor: Colors.white),
       obscureText: true,
+      controller: _passwordTextController,
       validator: (String value) {
         if (value.isEmpty) {
           return 'Invalid password';
@@ -104,6 +137,19 @@ class _AuthPageState extends State<AuthPage> {
       },
       onSaved: (value) {
         _formData['password'] = value;
+      },
+    );
+  }
+
+  Widget _buildPasswordConfirmTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+          labelText: 'Confirm Password', filled: true, fillColor: Colors.white),
+      obscureText: true,
+      validator: (String value) {
+        if (_passwordTextController.text != value) {
+          return 'Passwords do not match';
+        }
       },
     );
   }
@@ -120,12 +166,35 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void submitForm(Function login) {
+  void submitForm(Function login, Function signup) async {
     if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
       return;
     }
     _formKey.currentState.save();
-    login(_formData['email'], _formData['password']);
-    Navigator.pushReplacementNamed(context, '/products');
+    if (_authMode == AuthMode.LOGIN) {
+      login(_formData['email'], _formData['password']);
+    } else {
+      final Map<String, dynamic> successInfo =
+          await signup(_formData['email'], _formData['password']);
+      if (successInfo['success']) {
+        Navigator.pushReplacementNamed(context, '/products');
+      } else {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('ERROR'),
+                content: Text(successInfo['message']),
+                actions: <Widget>[
+                  FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('OK')),
+                ],
+              );
+            });
+      }
+    }
   }
 }

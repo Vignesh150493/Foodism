@@ -89,7 +89,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
       return false;
     }
   }
-  
+
   Future<bool> updateProduct(
       String title, String description, String image, double price) {
     _isLoading = true;
@@ -214,6 +214,33 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 mixin UserScopedModel on ConnectedProdScopedModel {
   void login(String email, String password) {
     _authenticatedUser = User(id: 'asd', email: email, password: password);
+  }
+
+  Future<Map<String, dynamic>> signup(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+    Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true,
+    };
+    final http.Response response = await http.post(
+      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyDiVlj1fMw7dYgZPuZpgP4DVl3xOFWnl1w",
+      body: json.encode(authData),
+      headers: {'Content-Type': 'application/json'},
+    );
+    final Map<String, dynamic> responsedata = json.decode(response.body);
+    bool hasError = true;
+    String message = 'Something went wrong';
+    if (responsedata.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication Succeeded';
+    } else if (responsedata['error']['message'] == 'EMAIL_EXISTS') {
+      message = 'This email already exists';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {'success': !hasError, 'message': message};
   }
 }
 
