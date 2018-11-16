@@ -63,7 +63,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 
     try {
       final http.Response response = await http.post(
-          'https://foodie-products.firebaseio.com/products.json',
+          'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser.token}',
           body: json.encode(productData));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -105,7 +105,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     };
     return http
         .put(
-            'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json',
+            'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
             body: json.encode(dataToUpdate))
         .then((http.Response response) {
       _isLoading = false;
@@ -134,7 +134,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
     return http
         .delete(
-            'https://foodie-products.firebaseio.com/products/$deletedProductId.json')
+            'https://foodie-products.firebaseio.com/products/$deletedProductId.json?auth=${_authenticatedUser.token}')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
@@ -150,7 +150,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     _isLoading = true;
     notifyListeners();
     return http
-        .get('https://foodie-products.firebaseio.com/products.json')
+        .get(
+            'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> productListData = json.decode(response.body);
@@ -217,7 +218,6 @@ mixin UserScopedModel on ConnectedProdScopedModel {
       [AuthMode mode = AuthMode.LOGIN]) async {
     _isLoading = true;
     notifyListeners();
-//    _authenticatedUser = User(id: 'asd', email: email, password: password);
     Map<String, dynamic> authData = {
       'email': email,
       'password': password,
@@ -245,6 +245,10 @@ mixin UserScopedModel on ConnectedProdScopedModel {
     if (responsedata.containsKey('idToken')) {
       hasError = false;
       message = 'Authentication Succeeded';
+      _authenticatedUser = User(
+          id: responsedata['localId'],
+          email: email,
+          token: responsedata['idToken']);
     } else if (responsedata['error']['message'] == 'EMAIL_NOT_FOUND') {
       message = 'This email was not found';
     } else if (responsedata['error']['message'] == 'INVALID_PASSWORD') {
