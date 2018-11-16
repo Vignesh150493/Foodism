@@ -5,6 +5,7 @@ import '../models/auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //Note we can seperate the models by making them a lib
 //https://stackoverflow.com/questions/13876879/how-do-you-namespace-a-dart-class
@@ -214,6 +215,10 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 }
 
 mixin UserScopedModel on ConnectedProdScopedModel {
+  User get user {
+    return _authenticatedUser;
+  }
+
   Future<Map<String, dynamic>> authenticate(String email, String password,
       [AuthMode mode = AuthMode.LOGIN]) async {
     _isLoading = true;
@@ -249,6 +254,10 @@ mixin UserScopedModel on ConnectedProdScopedModel {
           id: responsedata['localId'],
           email: email,
           token: responsedata['idToken']);
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', responsedata['idToken']);
+      prefs.setString('userEmail', email);
+      prefs.setString('userId', responsedata['localId']);
     } else if (responsedata['error']['message'] == 'EMAIL_NOT_FOUND') {
       message = 'This email was not found';
     } else if (responsedata['error']['message'] == 'INVALID_PASSWORD') {
@@ -259,6 +268,17 @@ mixin UserScopedModel on ConnectedProdScopedModel {
     _isLoading = false;
     notifyListeners();
     return {'success': !hasError, 'message': message};
+  }
+
+  void autoAuthenticate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String token = prefs.get('token');
+    if (token != null) {
+      final String userEmail = prefs.get('userEmail');
+      final String userId = prefs.get('userId');
+      _authenticatedUser = User(id: userId, email: userEmail, token: token);
+      notifyListeners();
+    }
   }
 }
 

@@ -23,12 +23,18 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final MainScopedModel model = MainScopedModel();
+  final MainScopedModel _model = MainScopedModel();
+
+  @override
+  void initState() {
+    super.initState();
+    _model.autoAuthenticate();
+  }
   @override
   Widget build(BuildContext context) {
     return ScopedModel<MainScopedModel>(
       //Model would be passed to materialapp and all its children.
-      model: model,
+      model: _model,
       child: MaterialApp(
         // debugShowMaterialGrid: true,
         theme: ThemeData(
@@ -38,9 +44,13 @@ class MyAppState extends State<MyApp> {
             buttonColor: Colors.deepPurple,
             fontFamily: 'Google'),
         routes: {
-          '/': (BuildContext context) => AuthPage(),
-          '/products': (BuildContext context) => HomePage(model),
-          '/admin': (BuildContext context) => ProductAdmin(model),
+          '/': (BuildContext context) => ScopedModelDescendant(
+            builder: (context, widget, MainScopedModel model) {
+              return model.user == null ? AuthPage() : HomePage(_model);
+            },
+          ),
+          '/products': (BuildContext context) => HomePage(_model),
+          '/admin': (BuildContext context) => ProductAdmin(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElements = settings.name.split('/');
@@ -49,7 +59,7 @@ class MyAppState extends State<MyApp> {
           }
           if (pathElements[1] == 'product') {
             final String productId = pathElements[2];
-            final Product product = model.allProducts.firstWhere((Product product) {
+            final Product product = _model.allProducts.firstWhere((Product product) {
               return product.id == productId;
             });
             return MaterialPageRoute<bool>(
@@ -58,7 +68,7 @@ class MyAppState extends State<MyApp> {
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
-          return MaterialPageRoute(builder: (context) => HomePage(model));
+          return MaterialPageRoute(builder: (context) => HomePage(_model));
         },
       ),
     );
