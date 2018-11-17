@@ -170,7 +170,11 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
             price: productMap['price'],
             image: productMap['image'],
             userEmail: productMap['userEmail'],
-            userId: productMap['userId']);
+            userId: productMap['userId'],
+            isFavourite: productMap['wishListUsers'] == null
+                ? false
+                : (productMap['wishListUsers'] as Map<String, dynamic>)
+                    .containsKey(_authenticatedUser.id));
         fetchedProdList.add(product);
       });
       _products = fetchedProdList;
