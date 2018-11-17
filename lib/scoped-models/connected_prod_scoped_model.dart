@@ -2,6 +2,7 @@ import 'package:scoped_model/scoped_model.dart';
 import '../models/product.dart';
 import '../models/user.dart';
 import '../models/auth.dart';
+import '../models/location_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -50,8 +51,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  Future<bool> addProduct(
-      String title, String description, String image, double price) async {
+  Future<bool> addProduct(String title, String description, String image,
+      double price, LocationModel locationModel) async {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> productData = {
@@ -61,6 +62,9 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
       'price': price,
       'userEmail': _authenticatedUser.email,
       'userId': _authenticatedUser.id,
+      'loc_lat': locationModel.latitude,
+      'loc_lng': locationModel.longtitude,
+      'loc_address': locationModel.address,
     };
 
     try {
@@ -232,9 +236,9 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 
   void selectProduct(String productId) {
     _selProdId = productId;
-//    if (index != null) {
-    notifyListeners();
-//    }
+    if (productId != null) {
+      notifyListeners();
+    }
   }
 
   void toggleDisplayMode() {

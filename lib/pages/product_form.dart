@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
+
+import '../models/product.dart';
+import '../models/location_model.dart';
 import '../scoped-models/main_scoped_model.dart';
+import '../widgets/form_fields/location.dart';
 
 class ProductForm extends StatefulWidget {
   @override
@@ -16,6 +19,7 @@ class _ProductFormState extends State<ProductForm> {
     'description': null,
     'price': null,
     'image': 'assets/food.jpg',
+    'location': null,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -55,6 +59,10 @@ class _ProductFormState extends State<ProductForm> {
               _buildTitleTextField(product),
               _buildDescriptionTextField(product),
               _buildPriceTextField(product),
+              SizedBox(
+                height: 10.0,
+              ),
+              LocationInput(_setLocation),
               SizedBox(
                 height: 10.0,
               ),
@@ -137,6 +145,11 @@ class _ProductFormState extends State<ProductForm> {
     );
   }
 
+  void _setLocation(LocationModel model) {
+    _formData['location'] = model;
+    //asd
+  }
+
   void _submitForm(
       Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
@@ -150,6 +163,7 @@ class _ProductFormState extends State<ProductForm> {
         _formData['description'],
         _formData['image'],
         _formData['price'],
+        _formData['location'],
       ).then((bool success) {
         if (success) {
           Navigator.pushReplacementNamed(context, '/products').then((_) {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'pages/auth.dart';
-import 'pages/product_admin.dart';
-import 'pages/home.dart';
-import 'pages/product_detail.dart';
-import 'models/product.dart';
+import 'package:map_view/map_view.dart';
 import 'package:scoped_model/scoped_model.dart';
+
+import 'models/product.dart';
+import 'pages/auth.dart';
+import 'pages/home.dart';
+import 'pages/product_admin.dart';
+import 'pages/product_detail.dart';
 import 'scoped-models/main_scoped_model.dart';
 //import 'package:flutter/rendering.dart';
 
@@ -12,6 +14,7 @@ void main() {
 //  debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
+  MapView.setApiKey('AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4');
   runApp(MyApp());
 }
 
