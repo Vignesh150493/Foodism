@@ -24,12 +24,19 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   final MainScopedModel _model = MainScopedModel();
+  bool _isAuthenticated = false;
 
   @override
   void initState() {
     super.initState();
+    _model.userSubject.listen((bool isAuthenticated) {
+      setState(() {
+        _isAuthenticated = isAuthenticated;
+      });
+    });
     _model.autoAuthenticate();
   }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModel<MainScopedModel>(
@@ -44,31 +51,35 @@ class MyAppState extends State<MyApp> {
             buttonColor: Colors.deepPurple,
             fontFamily: 'Google'),
         routes: {
-          '/': (BuildContext context) => ScopedModelDescendant(
-            builder: (context, widget, MainScopedModel model) {
-              return model.user == null ? AuthPage() : HomePage(_model);
-            },
-          ),
-          '/products': (BuildContext context) => HomePage(_model),
-          '/admin': (BuildContext context) => ProductAdmin(_model),
+          '/': (BuildContext context) =>
+              !_isAuthenticated ? AuthPage() : HomePage(_model),
+          '/admin': (BuildContext context) =>
+              !_isAuthenticated ? AuthPage() : ProductAdmin(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
+          if (!_isAuthenticated) {
+            return MaterialPageRoute<bool>(builder: (context) => AuthPage());
+          }
           final List<String> pathElements = settings.name.split('/');
           if (pathElements[0] != '') {
             return null;
           }
           if (pathElements[1] == 'product') {
             final String productId = pathElements[2];
-            final Product product = _model.allProducts.firstWhere((Product product) {
+            final Product product =
+                _model.allProducts.firstWhere((Product product) {
               return product.id == productId;
             });
             return MaterialPageRoute<bool>(
-                builder: (context) => ProductDetail(product));
+                builder: (context) =>
+                    !_isAuthenticated ? AuthPage() : ProductDetail(product));
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
-          return MaterialPageRoute(builder: (context) => HomePage(_model));
+          return MaterialPageRoute(
+              builder: (context) =>
+                  !_isAuthenticated ? AuthPage() : HomePage(_model));
         },
       ),
     );

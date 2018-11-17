@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'product_form.dart';
 import 'product_list.dart';
 import '../scoped-models/main_scoped_model.dart';
+import '../widgets/common/logout_list_tile.dart';
 
 class ProductAdmin extends StatelessWidget {
   final MainScopedModel model;
@@ -20,9 +21,11 @@ class ProductAdmin extends StatelessWidget {
             leading: Icon(Icons.shop),
             title: Text("All Products"),
             onTap: () {
-              Navigator.pushReplacementNamed(context, '/products');
+              Navigator.pushReplacementNamed(context, '/');
             },
-          )
+          ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );

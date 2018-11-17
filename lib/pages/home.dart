@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/productwidgets/product_summary_list.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped-models/main_scoped_model.dart';
+import '../widgets/common/logout_list_tile.dart';
 
 class HomePage extends StatefulWidget {
   final MainScopedModel model;
@@ -29,7 +30,9 @@ class HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.pushReplacementNamed(context, '/admin');
             },
-          )
+          ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );

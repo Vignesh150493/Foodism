@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/subjects.dart';
 
 //Note we can seperate the models by making them a lib
 //https://stackoverflow.com/questions/13876879/how-do-you-namespace-a-dart-class
@@ -49,8 +50,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  Future<bool> addProduct(
-      String title, String description, String image, double price) async {
+  Future<bool> addProduct(String title, String description, String image,
+      double price) async {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> productData = {
@@ -64,7 +65,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 
     try {
       final http.Response response = await http.post(
-          'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser.token}',
+          'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser
+              .token}',
           body: json.encode(productData));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -92,8 +94,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     }
   }
 
-  Future<bool> updateProduct(
-      String title, String description, String image, double price) {
+  Future<bool> updateProduct(String title, String description, String image,
+      double price) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> dataToUpdate = {
@@ -106,8 +108,9 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     };
     return http
         .put(
-            'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
-            body: json.encode(dataToUpdate))
+        'https://foodie-products.firebaseio.com/products/${selectedProduct
+            .id}.json?auth=${_authenticatedUser.token}',
+        body: json.encode(dataToUpdate))
         .then((http.Response response) {
       _isLoading = false;
       _products[selectedProductIndex] = Product(
@@ -135,7 +138,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
     return http
         .delete(
-            'https://foodie-products.firebaseio.com/products/$deletedProductId.json?auth=${_authenticatedUser.token}')
+        'https://foodie-products.firebaseio.com/products/$deletedProductId.json?auth=${_authenticatedUser
+            .token}')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
@@ -152,7 +156,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
     return http
         .get(
-            'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser.token}')
+        'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser
+            .token}')
         .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> productListData = json.decode(response.body);
@@ -215,8 +220,16 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 }
 
 mixin UserScopedModel on ConnectedProdScopedModel {
+
+  Timer _authTimer;
+  PublishSubject<bool> _userSubject = PublishSubject();
+
   User get user {
     return _authenticatedUser;
+  }
+
+  PublishSubject<bool> get userSubject {
+    return _userSubject;
   }
 
   Future<Map<String, dynamic>> authenticate(String email, String password,
@@ -254,10 +267,16 @@ mixin UserScopedModel on ConnectedProdScopedModel {
           id: responsedata['localId'],
           email: email,
           token: responsedata['idToken']);
+      setAuthTimeout(int.parse(responsedata['expiresIn']));
+      _userSubject.add(true);
+      final DateTime now = DateTime.now();
+      final DateTime expiryTime = now.add(
+          Duration(seconds: int.parse(responsedata['expiresIn'])));
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responsedata['idToken']);
       prefs.setString('userEmail', email);
       prefs.setString('userId', responsedata['localId']);
+      prefs.setString('expiryTime', expiryTime.toIso8601String());
     } else if (responsedata['error']['message'] == 'EMAIL_NOT_FOUND') {
       message = 'This email was not found';
     } else if (responsedata['error']['message'] == 'INVALID_PASSWORD') {
@@ -273,12 +292,39 @@ mixin UserScopedModel on ConnectedProdScopedModel {
   void autoAuthenticate() async {
     final prefs = await SharedPreferences.getInstance();
     final String token = prefs.get('token');
+    final String expiryTimeString = prefs.getString('expiryTime');
     if (token != null) {
+      final DateTime now = DateTime.now();
+      final parsedExpiryTime = DateTime.parse(expiryTimeString);
+      
+      if (parsedExpiryTime.isBefore(now)) {
+        _authenticatedUser = null;
+        notifyListeners();
+        return;
+      }
+      
       final String userEmail = prefs.get('userEmail');
       final String userId = prefs.get('userId');
+      final int tokenLifeSpan = parsedExpiryTime.difference(now).inSeconds;
       _authenticatedUser = User(id: userId, email: userEmail, token: token);
+      _userSubject.add(true);
+      setAuthTimeout(tokenLifeSpan);
       notifyListeners();
     }
+  }
+
+  void logout() async {
+    _authenticatedUser = null;
+    _authTimer.cancel();
+    _userSubject.add(false);
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+    prefs.remove('userEmail');
+    prefs.remove('userId');
+  }
+
+  void setAuthTimeout(int time) {
+    _authTimer = Timer(Duration(seconds: time), logout);
   }
 }
 
