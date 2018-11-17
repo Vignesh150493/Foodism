@@ -37,6 +37,12 @@ class MyAppState extends State<MyApp> {
     _model.autoAuthenticate();
   }
 
+  //Why is rxdart subject here, preferred over scoped model?
+  //In scoped model, on notify listeners, the entire widget tree of descendants is built.
+  //Flutter is smart enough to look for changes and paint only the widgets that are changed, but still.
+  //In our case we just listen to main model. Maybe we can make it seperate scoped models.
+  // But since, here we have products and users, which kind of interact, everything came into single scoped model.
+  //U use subject, and we can decide what to target, more specifically. 
   @override
   Widget build(BuildContext context) {
     return ScopedModel<MainScopedModel>(
