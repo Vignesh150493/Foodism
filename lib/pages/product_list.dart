@@ -18,7 +18,7 @@ class ProductListPageState extends State<ProductListPage> {
   @override
   void initState() {
     super.initState();
-    widget.model.fetchProducts();
+    widget.model.fetchProducts(onlyForUser: true);
   }
 
   @override
