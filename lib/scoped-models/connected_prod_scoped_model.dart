@@ -50,8 +50,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  Future<bool> addProduct(String title, String description, String image,
-      double price) async {
+  Future<bool> addProduct(
+      String title, String description, String image, double price) async {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> productData = {
@@ -65,8 +65,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 
     try {
       final http.Response response = await http.post(
-          'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser
-              .token}',
+          'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser.token}',
           body: json.encode(productData));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -94,8 +93,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     }
   }
 
-  Future<bool> updateProduct(String title, String description, String image,
-      double price) {
+  Future<bool> updateProduct(
+      String title, String description, String image, double price) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> dataToUpdate = {
@@ -108,9 +107,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     };
     return http
         .put(
-        'https://foodie-products.firebaseio.com/products/${selectedProduct
-            .id}.json?auth=${_authenticatedUser.token}',
-        body: json.encode(dataToUpdate))
+            'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
+            body: json.encode(dataToUpdate))
         .then((http.Response response) {
       _isLoading = false;
       _products[selectedProductIndex] = Product(
@@ -138,8 +136,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
     return http
         .delete(
-        'https://foodie-products.firebaseio.com/products/$deletedProductId.json?auth=${_authenticatedUser
-            .token}')
+            'https://foodie-products.firebaseio.com/products/$deletedProductId.json?auth=${_authenticatedUser.token}')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
@@ -156,8 +153,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     notifyListeners();
     return http
         .get(
-        'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser
-            .token}')
+            'https://foodie-products.firebaseio.com/products.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> productListData = json.decode(response.body);
@@ -188,8 +184,10 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  void toggleProductFavouriteStatus() {
+  void toggleProductFavouriteStatus() async {
     final bool isFavourite = selectedProduct.isFavourite;
+    final bool newFavouriteStatus = !isFavourite;
+
     _products[selectedProductIndex] = Product(
         id: selectedProduct.id,
         title: selectedProduct.title,
@@ -200,6 +198,28 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
         userId: selectedProduct.userId,
         isFavourite: !isFavourite);
     notifyListeners();
+    http.Response response;
+    if (newFavouriteStatus) {
+      response = await http.put(
+          'https://foodie-products.firebaseio.com/products/${selectedProduct.id}/wishListUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
+          body: json.encode(true));
+    } else {
+      response = await http.delete(
+          'https://foodie-products.firebaseio.com/products/${selectedProduct.id}/wishListUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      _products[selectedProductIndex] = Product(
+          id: selectedProduct.id,
+          title: selectedProduct.title,
+          description: selectedProduct.description,
+          price: selectedProduct.price,
+          image: selectedProduct.image,
+          userEmail: selectedProduct.userEmail,
+          userId: selectedProduct.userId,
+          isFavourite: !newFavouriteStatus);
+      notifyListeners();
+    }
   }
 
   void selectProduct(String productId) {
@@ -220,7 +240,6 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 }
 
 mixin UserScopedModel on ConnectedProdScopedModel {
-
   Timer _authTimer;
   PublishSubject<bool> _userSubject = PublishSubject();
 
@@ -270,8 +289,8 @@ mixin UserScopedModel on ConnectedProdScopedModel {
       setAuthTimeout(int.parse(responsedata['expiresIn']));
       _userSubject.add(true);
       final DateTime now = DateTime.now();
-      final DateTime expiryTime = now.add(
-          Duration(seconds: int.parse(responsedata['expiresIn'])));
+      final DateTime expiryTime =
+          now.add(Duration(seconds: int.parse(responsedata['expiresIn'])));
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responsedata['idToken']);
       prefs.setString('userEmail', email);
@@ -296,13 +315,13 @@ mixin UserScopedModel on ConnectedProdScopedModel {
     if (token != null) {
       final DateTime now = DateTime.now();
       final parsedExpiryTime = DateTime.parse(expiryTimeString);
-      
+
       if (parsedExpiryTime.isBefore(now)) {
         _authenticatedUser = null;
         notifyListeners();
         return;
       }
-      
+
       final String userEmail = prefs.get('userEmail');
       final String userId = prefs.get('userId');
       final int tokenLifeSpan = parsedExpiryTime.difference(now).inSeconds;
