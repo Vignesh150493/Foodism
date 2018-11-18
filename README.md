@@ -4,3 +4,5 @@ TODO
     
 - Using a third party package for maps. Might have to think of using the package flutter offers. 
     
+- Issue with the location package.
+    - https://github.com/Lyokone/flutterlocation/issues/44
