@@ -1,22 +1,48 @@
 import 'package:flutter/material.dart';
 import '../widgets/common/title_default.dart';
-import 'package:scoped_model/scoped_model.dart';
-import '../scoped-models/main_scoped_model.dart';
 import '../models/product.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:map_view/map_view.dart';
 
 class ProductDetail extends StatelessWidget {
   final Product product;
 
   ProductDetail(this.product);
 
+  void _showMap() {
+    final List<Marker> markers = <Marker>[
+      Marker('position', 'Position', product.location.latitude,
+          product.location.longtitude)
+    ];
+    final mapView = MapView();
+    final cameraPosition = CameraPosition(
+        Location(product.location.latitude, product.location.longtitude), 14.0);
+    mapView.show(
+        MapOptions(
+            mapViewType: MapViewType.normal,
+            title: 'Product Location',
+            initialCameraPosition: cameraPosition),
+        toolbarActions: [ToolbarAction('Close', 1)]);
+    mapView.onToolbarAction.listen((id) {
+      if (id == 1) {
+        mapView.dismiss();
+      }
+    });
+    mapView.onMapReady.listen((_) {
+      mapView.setMarkers(markers);
+    });
+  }
+
   Widget _buildAddressPriceRow(double price) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(
-          product.location.address,
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+        GestureDetector(
+          onTap: _showMap,
+          child: Text(
+            product.location.address,
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
         ),
         Container(
             margin: EdgeInsets.symmetric(horizontal: 5.0),
