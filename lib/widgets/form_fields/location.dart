@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:map_view/map_view.dart';
 import 'dart:convert';
 import '../../models/location_model.dart';
+import '../../models/product.dart';
 
 import 'package:http/http.dart' as http;
 
 class LocationInput extends StatefulWidget {
   Function setLocation;
+  final Product product;
 
-  LocationInput(this.setLocation);
+  LocationInput(this.setLocation, this.product);
 
   @override
   _LocationInputState createState() => _LocationInputState();
@@ -24,6 +26,9 @@ class _LocationInputState extends State<LocationInput> {
   void initState() {
     super.initState();
     _addressInputFocusNode.addListener(_updateLocation);
+    if (widget.product != null) {
+      getStaticMap(widget.product.location.address, false);
+    }
   }
 
   @override
@@ -32,7 +37,7 @@ class _LocationInputState extends State<LocationInput> {
     super.dispose();
   }
 
-  void getStaticMap(String address) async {
+  void getStaticMap(String address, [geocode = true]) async {
     if (address.isEmpty) {
       setState(() {
         _staticMapUri = null;
@@ -40,18 +45,24 @@ class _LocationInputState extends State<LocationInput> {
       widget.setLocation(null);
       return;
     }
-    final Uri uri = Uri.https('maps.googleapis.com', '/maps/api/geocode/json', {
-      'address': address,
-      'key': 'AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4',
-    });
-    final http.Response response = await http.get(uri);
-    final decodedResponse = json.decode(response.body);
-    final formattedAddress = decodedResponse['results'][0]['formatted_address'];
-    final coords = decodedResponse['results'][0]['geometry']['location'];
-    _locationModel = LocationModel(
-        address: formattedAddress,
-        latitude: coords['lat'],
-        longtitude: coords['lng']);
+    if (geocode) {
+      final Uri uri =
+          Uri.https('maps.googleapis.com', '/maps/api/geocode/json', {
+        'address': address,
+        'key': 'AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4',
+      });
+      final http.Response response = await http.get(uri);
+      final decodedResponse = json.decode(response.body);
+      final formattedAddress =
+          decodedResponse['results'][0]['formatted_address'];
+      final coords = decodedResponse['results'][0]['geometry']['location'];
+      _locationModel = LocationModel(
+          address: formattedAddress,
+          latitude: coords['lat'],
+          longtitude: coords['lng']);
+    } else {
+      _locationModel = widget.product.location;
+    }
 
     final StaticMapProvider staticMapProvider =
         StaticMapProvider('AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4');
@@ -93,7 +104,9 @@ class _LocationInputState extends State<LocationInput> {
         SizedBox(
           height: 10.0,
         ),
-        Image.network(_staticMapUri.toString()),
+        _staticMapUri == null
+            ? Container()
+            : Image.network(_staticMapUri.toString()),
       ],
     );
   }

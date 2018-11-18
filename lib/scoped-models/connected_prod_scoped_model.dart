@@ -83,6 +83,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           title: title,
           description: description,
           price: price,
+          location: locationModel,
           image: image,
           userEmail: _authenticatedUser.email,
           userId: _authenticatedUser.id);
@@ -97,8 +98,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     }
   }
 
-  Future<bool> updateProduct(
-      String title, String description, String image, double price) {
+  Future<bool> updateProduct(String title, String description, String image,
+      double price, LocationModel locModel) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> dataToUpdate = {
@@ -108,6 +109,9 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
       'price': price,
       'userEmail': selectedProduct.userEmail,
       'userId': selectedProduct.userId,
+      'loc_lat': locModel.latitude,
+      'loc_lng': locModel.longtitude,
+      'loc_address': locModel.address,
     };
     return http
         .put(
@@ -120,6 +124,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           title: title,
           description: description,
           price: price,
+          location: locModel,
           image: image,
           userEmail: selectedProduct.userEmail,
           userId: selectedProduct.userId);
@@ -172,6 +177,11 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
             title: productMap['title'],
             description: productMap['description'],
             price: productMap['price'],
+            location: LocationModel(
+              address: productMap['loc_address'],
+              latitude: productMap['loc_lat'],
+              longtitude: productMap['loc_lng'],
+            ),
             image: productMap['image'],
             userEmail: productMap['userEmail'],
             userId: productMap['userId'],
@@ -206,6 +216,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
         description: selectedProduct.description,
         price: selectedProduct.price,
         image: selectedProduct.image,
+        location: selectedProduct.location,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
         isFavourite: !isFavourite);
@@ -227,6 +238,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           description: selectedProduct.description,
           price: selectedProduct.price,
           image: selectedProduct.image,
+          location: selectedProduct.location,
           userEmail: selectedProduct.userEmail,
           userId: selectedProduct.userId,
           isFavourite: !newFavouriteStatus);
