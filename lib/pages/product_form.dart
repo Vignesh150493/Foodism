@@ -23,6 +23,9 @@ class _ProductFormState extends State<ProductForm> {
     'location': null,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _titleTextController = TextEditingController();
+  final _descriptionTextController = TextEditingController();
+  final _priceTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +106,19 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   Widget _buildTitleTextField(Product product) {
+    if (product == null && _titleTextController.text.trim() == '') {
+      _titleTextController.text = '';
+    } else if (product != null && _titleTextController.text.trim() == '') {
+      _titleTextController.text = product.title;
+    } else if (product != null && _titleTextController.text.trim() != '') {
+      _titleTextController.text = _titleTextController.text;
+    } else if (product == null && _titleTextController.text.trim() != '') {
+      _titleTextController.text = _titleTextController.text;
+    } else {
+      _titleTextController.text = '';
+    }
     return TextFormField(
-      initialValue: product == null ? '' : product.title,
+      controller: _titleTextController,
       decoration: InputDecoration(labelText: 'Product Title'),
       validator: (value) {
         if (value.isEmpty) {
@@ -118,8 +132,14 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   Widget _buildDescriptionTextField(Product product) {
+    if (product == null && _descriptionTextController.text.trim() == '') {
+      _descriptionTextController.text = '';
+    } else if (product != null &&
+        _descriptionTextController.text.trim() == '') {
+      _descriptionTextController.text = product.description;
+    }
     return TextFormField(
-      initialValue: product == null ? '' : product.description,
+      controller: _descriptionTextController,
       decoration: InputDecoration(labelText: 'Product Description'),
       validator: (value) {
         if (value.isEmpty) {
@@ -134,8 +154,13 @@ class _ProductFormState extends State<ProductForm> {
   }
 
   Widget _buildPriceTextField(Product product) {
+    if (product == null && _priceTextController.text.trim() == '') {
+      _priceTextController.text = '';
+    } else if (product != null && _priceTextController.text.trim() == '') {
+      _priceTextController.text = product.description;
+    }
     return TextFormField(
-      initialValue: product == null ? '' : product.price.toString(),
+      controller: _priceTextController,
       decoration: InputDecoration(labelText: 'Product Price'),
       keyboardType: TextInputType.number,
       validator: (value) {
@@ -164,10 +189,10 @@ class _ProductFormState extends State<ProductForm> {
     _formKey.currentState.save();
     if (selectedProductIndex == -1) {
       addProduct(
-        _formData['title'],
-        _formData['description'],
+        _titleTextController.text,
+        _descriptionTextController.text,
         _formData['image'],
-        _formData['price'],
+        double.parse(_priceTextController.text),
         _formData['location'],
       ).then((bool success) {
         if (success) {
@@ -192,10 +217,10 @@ class _ProductFormState extends State<ProductForm> {
       });
     } else {
       updateProduct(
-        _formData['title'],
-        _formData['description'],
+        _titleTextController.text,
+        _descriptionTextController.text,
         _formData['image'],
-        _formData['price'],
+        double.parse(_priceTextController.text),
         _formData['location'],
       ).then((_) {
         Navigator.pushReplacementNamed(context, '/products').then((_) {
