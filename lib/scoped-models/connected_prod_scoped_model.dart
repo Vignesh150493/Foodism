@@ -101,7 +101,6 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
-      'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
       'price': price,
       'userEmail': _authenticatedUser.email,
       'userId': _authenticatedUser.id,
@@ -130,6 +129,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           price: price,
           location: locationModel,
           image: uploadData['imageUrl'],
+          imagePath: uploadData['imagePath'],
           userEmail: _authenticatedUser.email,
           userId: _authenticatedUser.id);
       _products.add(newProduct);
@@ -227,7 +227,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
               latitude: productMap['loc_lat'],
               longtitude: productMap['loc_lng'],
             ),
-            image: productMap['image'],
+            image: productMap['imageUrl'],
+            imagePath: productMap['imagePath'],
             userEmail: productMap['userEmail'],
             userId: productMap['userId'],
             isFavourite: productMap['wishListUsers'] == null
@@ -261,6 +262,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
         description: selectedProduct.description,
         price: selectedProduct.price,
         image: selectedProduct.image,
+        imagePath: selectedProduct.imagePath,
         location: selectedProduct.location,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
@@ -283,6 +285,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           description: selectedProduct.description,
           price: selectedProduct.price,
           image: selectedProduct.image,
+          imagePath: selectedProduct.imagePath,
           location: selectedProduct.location,
           userEmail: selectedProduct.userEmail,
           userId: selectedProduct.userId,
