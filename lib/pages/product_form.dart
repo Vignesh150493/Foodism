@@ -7,6 +7,8 @@ import '../scoped-models/main_scoped_model.dart';
 import '../widgets/form_fields/location.dart';
 import '../widgets/form_fields/image.dart';
 
+import 'dart:io';
+
 class ProductForm extends StatefulWidget {
   @override
   _ProductFormState createState() {
@@ -19,7 +21,7 @@ class _ProductFormState extends State<ProductForm> {
     'title': null,
     'description': null,
     'price': null,
-    'image': 'assets/food.jpg',
+    'image': null,
     'location': null,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -70,7 +72,7 @@ class _ProductFormState extends State<ProductForm> {
               SizedBox(
                 height: 10.0,
               ),
-              ImageInput(),
+              ImageInput(_setImage, product),
               SizedBox(
                 height: 10.0,
               ),
@@ -177,13 +179,17 @@ class _ProductFormState extends State<ProductForm> {
 
   void _setLocation(LocationModel model) {
     _formData['location'] = model;
-    //asd
+  }
+
+  void _setImage(File image) {
+    _formData['image'] = image;
   }
 
   void _submitForm(
       Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
-    if (!_formKey.currentState.validate()) {
+    if (!_formKey.currentState.validate() ||
+        (_formData['image'] == null && selectedProductIndex == -1)) {
       return;
     }
     _formKey.currentState.save();
