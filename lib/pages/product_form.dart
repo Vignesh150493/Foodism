@@ -68,7 +68,7 @@ class _ProductFormState extends State<ProductForm> {
               SizedBox(
                 height: 10.0,
               ),
-              LocationInput(_setLocation, product),
+//              LocationInput(_setLocation, product),
               SizedBox(
                 height: 10.0,
               ),
@@ -199,7 +199,7 @@ class _ProductFormState extends State<ProductForm> {
         _descriptionTextController.text,
         _formData['image'],
         double.parse(_priceTextController.text),
-        _formData['location'],
+//        _formData['location'],
       ).then((bool success) {
         if (success) {
           Navigator.pushReplacementNamed(context, '/products').then((_) {
@@ -227,7 +227,7 @@ class _ProductFormState extends State<ProductForm> {
         _descriptionTextController.text,
         _formData['image'],
         double.parse(_priceTextController.text),
-        _formData['location'],
+//        _formData['location'],
       ).then((_) {
         Navigator.pushReplacementNamed(context, '/products').then((_) {
           setSelectedProduct(null);

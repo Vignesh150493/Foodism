@@ -22,6 +22,6 @@ class Product {
       @required this.imagePath,
       @required this.userEmail,
       @required this.userId,
-      @required this.location,
+      this.location,
       this.isFavourite = false});
 }

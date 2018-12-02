@@ -37,13 +37,13 @@ class ProductDetail extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        GestureDetector(
-          onTap: _showMap,
-          child: Text(
-            product.location.address,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-          ),
-        ),
+//        GestureDetector(
+//          onTap: _showMap,
+//          child: Text(
+//            product.location.address,
+//            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+//          ),
+//        ),
         Container(
             margin: EdgeInsets.symmetric(horizontal: 5.0),
             child: Text(

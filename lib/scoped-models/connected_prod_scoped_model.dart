@@ -69,7 +69,8 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     if (imagePath != null) {
       imageUploadRequest.fields['imagePath'] = Uri.encodeComponent(imagePath);
     }
-    imageUploadRequest.headers['Authorization'] = 'Bearer ${_authenticatedUser.token}';
+    imageUploadRequest.headers['Authorization'] =
+        'Bearer ${_authenticatedUser.token}';
 
     try {
       final streamedResponse = await imageUploadRequest.send();
@@ -87,13 +88,14 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     }
   }
 
+//  , LocationModel locationModel
   Future<bool> addProduct(String title, String description, File image,
-      double price, LocationModel locationModel) async {
+      double price) async {
     _isLoading = true;
     notifyListeners();
     final uploadData = await uploadImage(image);
 
-    if(uploadData == null) {
+    if (uploadData == null) {
       print('Upload failed');
       return false;
     }
@@ -106,9 +108,9 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
       'userId': _authenticatedUser.id,
       'imagePath': uploadData['imagePath'],
       'imageUrl': uploadData['imageUrl'],
-      'loc_lat': locationModel.latitude,
-      'loc_lng': locationModel.longtitude,
-      'loc_address': locationModel.address,
+//      'loc_lat': locationModel.latitude,
+//      'loc_lng': locationModel.longtitude,
+//      'loc_address': locationModel.address,
     };
 
     try {
@@ -127,7 +129,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           title: title,
           description: description,
           price: price,
-          location: locationModel,
+//          location: locationModel,
           image: uploadData['imageUrl'],
           imagePath: uploadData['imagePath'],
           userEmail: _authenticatedUser.email,
@@ -143,43 +145,61 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     }
   }
 
-  Future<bool> updateProduct(String title, String description, String image,
-      double price, LocationModel locModel) {
+//  , LocationModel locModel
+  Future<bool> updateProduct(String title, String description, File image,
+      double price) async {
     _isLoading = true;
     notifyListeners();
+
+    String imageUrl = selectedProduct.image;
+    String imagePath = selectedProduct.imagePath;
+
+    if (image != null) {
+      final uploadData = await uploadImage(image);
+
+      if (uploadData == null) {
+        print('Upload failed');
+        return false;
+      }
+
+      imageUrl = uploadData['imageUrl'];
+      imagePath = uploadData['imagePath'];
+    }
     final Map<String, dynamic> dataToUpdate = {
       'title': title,
       'description': description,
-      'image': 'https://moneyinc.com/wp-content/uploads/2017/07/Chocolate.jpg',
+      'imageUrl': imageUrl,
+      'imagePath': imagePath,
       'price': price,
       'userEmail': selectedProduct.userEmail,
       'userId': selectedProduct.userId,
-      'loc_lat': locModel.latitude,
-      'loc_lng': locModel.longtitude,
-      'loc_address': locModel.address,
+//      'loc_lat': locModel.latitude,
+//      'loc_lng': locModel.longtitude,
+//      'loc_address': locModel.address,
     };
-    return http
-        .put(
-            'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
-            body: json.encode(dataToUpdate))
-        .then((http.Response response) {
+    try {
+      final http.Response response = await http.put(
+          'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
+          body: json.encode(dataToUpdate));
+
       _isLoading = false;
       _products[selectedProductIndex] = Product(
           id: selectedProduct.id,
           title: title,
           description: description,
           price: price,
-          location: locModel,
-          image: image,
+//          location: locModel,
+          image: imageUrl,
+          imagePath: imagePath,
           userEmail: selectedProduct.userEmail,
           userId: selectedProduct.userId);
       notifyListeners();
       return true;
-    }).catchError((error) {
+    } catch (error) {
       _isLoading = false;
       notifyListeners();
       return false;
-    });
+    }
   }
 
   Future<bool> deleteProduct() {

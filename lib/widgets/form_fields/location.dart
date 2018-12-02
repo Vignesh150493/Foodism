@@ -56,6 +56,8 @@ class _LocationInputState extends State<LocationInput> {
       });
       final http.Response response = await http.get(uri);
       final decodedResponse = json.decode(response.body);
+      print("########");
+      print(decodedResponse);
       final formattedAddress =
           decodedResponse['results'][0]['formatted_address'];
       final coords = decodedResponse['results'][0]['geometry']['location'];
