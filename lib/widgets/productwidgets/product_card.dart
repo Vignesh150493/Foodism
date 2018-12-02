@@ -35,8 +35,12 @@ class ProductCard extends StatelessWidget {
             IconButton(
                 icon: Icon(Icons.info),
                 color: Theme.of(context).accentColor,
-                onPressed: () => Navigator.pushNamed<bool>(
-                    context, '/product/' + model.allProducts[index].id)),
+                onPressed: () {
+                  model.selectProduct(model.allProducts[index].id);
+                  Navigator.pushNamed<bool>(
+                          context, '/product/' + model.allProducts[index].id)
+                      .then((_) => model.selectProduct(null));
+                }),
             IconButton(
                 icon: Icon(model.allProducts[index].isFavourite
                     ? Icons.favorite
@@ -69,7 +73,6 @@ class ProductCard extends StatelessWidget {
           ),
           _buildTitlePriceRow(),
 //          AddressTag(product.location.address),
-          Text(product.userEmail),
           _buildActionButtons(context),
         ],
       ),
