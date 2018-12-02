@@ -10,7 +10,7 @@ class AuthPage extends StatefulWidget {
   }
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   final Map<String, dynamic> _formData = {
     'email': null,
     'password': null,
@@ -19,10 +19,26 @@ class _AuthPageState extends State<AuthPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordTextController = TextEditingController();
   AuthMode _authMode = AuthMode.LOGIN;
+  AnimationController _controller;
+  Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    _controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _slideAnimation =
+        //Its like moved up twice its height at the beginning.
+        Tween<Offset>(begin: Offset(0.0, -2.0), end: Offset.zero).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double deviceWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     return Scaffold(
         appBar: AppBar(
@@ -49,22 +65,28 @@ class _AuthPageState extends State<AuthPage> {
                       SizedBox(
                         height: 10.0,
                       ),
-                      _authMode == AuthMode.SIGNUP
-                          ? _buildPasswordConfirmTextField()
-                          : Container(),
+                      _buildPasswordConfirmTextField(),
                       _buildAcceptConditionSwitch(),
                       SizedBox(
                         height: 10.0,
                       ),
                       FlatButton(
                         child: Text(
-                            'Switch to ${_authMode == AuthMode.LOGIN ? 'SignUp' : 'Login'}'),
+                            'Switch to ${_authMode == AuthMode.LOGIN
+                                ? 'SignUp'
+                                : 'Login'}'),
                         onPressed: () {
-                          setState(() {
-                            _authMode = _authMode == AuthMode.LOGIN
-                                ? AuthMode.SIGNUP
-                                : AuthMode.LOGIN;
-                          });
+                          if (_authMode == AuthMode.LOGIN) {
+                            setState(() {
+                              _authMode = AuthMode.SIGNUP;
+                            });
+                            _controller.forward();
+                          } else {
+                            setState(() {
+                              _authMode = AuthMode.LOGIN;
+                            });
+                            _controller.reverse();
+                          }
                         },
                       ),
                       SizedBox(
@@ -75,13 +97,13 @@ class _AuthPageState extends State<AuthPage> {
                           return model.isLoading
                               ? CircularProgressIndicator()
                               : RaisedButton(
-                                  textColor: Colors.white,
-                                  child: Text(_authMode == AuthMode.LOGIN
-                                      ? "LOGIN"
-                                      : "SIGNUP"),
-                                  onPressed: () =>
-                                      submitForm(model.authenticate),
-                                );
+                            textColor: Colors.white,
+                            child: Text(_authMode == AuthMode.LOGIN
+                                ? "LOGIN"
+                                : "SIGNUP"),
+                            onPressed: () =>
+                                submitForm(model.authenticate),
+                          );
                         },
                       ),
                     ],
@@ -96,7 +118,7 @@ class _AuthPageState extends State<AuthPage> {
   DecorationImage _buildBackgroundImage() {
     return DecorationImage(
         colorFilter:
-            ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
+        ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
         //dstATop means, we are putting our color (Colors.black.withOpacity(0.5)), on top of the image.
         image: AssetImage('assets/background.jpg'),
         fit: BoxFit.cover);
@@ -109,7 +131,8 @@ class _AuthPageState extends State<AuthPage> {
       keyboardType: TextInputType.emailAddress,
       validator: (String value) {
         if (value.isEmpty ||
-            !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+            !RegExp(
+                r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
                 .hasMatch(value)) {
           return 'Please enter a valid email';
         }
@@ -138,15 +161,24 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Widget _buildPasswordConfirmTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: 'Confirm Password', filled: true, fillColor: Colors.white),
-      obscureText: true,
-      validator: (String value) {
-        if (_passwordTextController.text != value) {
-          return 'Passwords do not match';
-        }
-      },
+    return FadeTransition(
+      opacity: CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: TextFormField(
+          decoration: InputDecoration(
+              labelText: 'Confirm Password',
+              filled: true,
+              fillColor: Colors.white),
+          obscureText: true,
+          validator: (String value) {
+            if (_passwordTextController.text != value &&
+                _authMode == AuthMode.SIGNUP) {
+              return 'Passwords do not match';
+            }
+          },
+        ),
+      ),
     );
   }
 
