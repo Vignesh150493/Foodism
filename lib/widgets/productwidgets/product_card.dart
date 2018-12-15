@@ -61,12 +61,15 @@ class ProductCard extends StatelessWidget {
     return Card(
       child: Column(
         children: <Widget>[
-          FadeInImage.memoryNetwork(
-            image: product.image,
-            height: 300.0,
-            fit: BoxFit.cover,
-            fadeInCurve: Curves.easeIn,
-            placeholder: kTransparentImage,
+          Hero(
+            tag: product.id,
+            child: FadeInImage.memoryNetwork(
+              image: product.image,
+              height: 300.0,
+              fit: BoxFit.cover,
+              fadeInCurve: Curves.easeIn,
+              placeholder: kTransparentImage,
+            ),
           ),
           SizedBox(
             height: 10.0,

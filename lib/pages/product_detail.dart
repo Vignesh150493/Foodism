@@ -68,32 +68,45 @@ class ProductDetail extends StatelessWidget {
         return Future.value(false);
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(product.title),
-        ),
-        body: Column(
-          //Cross axis is horizontal centering
-          //Main axis is vertical
-          children: <Widget>[
-            FadeInImage.memoryNetwork(
-              image: product.image,
-              height: 300.0,
-              fit: BoxFit.cover,
-              fadeInCurve: Curves.easeIn,
-              placeholder: kTransparentImage,
-            ),
-            Container(
-                padding: EdgeInsets.all(10.0),
-                child: TitleDefault(product.title)),
-            _buildAddressPriceRow(product.price),
-            Container(
-              child: Text(
-                product.description,
-                textAlign: TextAlign.center,
+//        appBar: AppBar(
+//          title: Text(product.title),
+//        ),
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              expandedHeight: 256.0,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(product.title),
+                background: Hero(
+                  tag: product.id,
+                  child: FadeInImage.memoryNetwork(
+                    image: product.image,
+                    height: 300.0,
+                    fit: BoxFit.cover,
+                    fadeInCurve: Curves.easeIn,
+                    placeholder: kTransparentImage,
+                  ),
+                ),
               ),
-              padding: EdgeInsets.all(10.0),
-              margin: EdgeInsets.only(top: 10.0),
             ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                    padding: EdgeInsets.all(10.0),
+                    alignment: Alignment.center,
+                    child: TitleDefault(product.title)),
+                _buildAddressPriceRow(product.price),
+                Container(
+                  child: Text(
+                    product.description,
+                    textAlign: TextAlign.center,
+                  ),
+                  padding: EdgeInsets.all(10.0),
+                  margin: EdgeInsets.only(top: 10.0),
+                ),
+              ]),
+            )
           ],
         ),
         floatingActionButton: ProductFab(product),
