@@ -428,6 +428,7 @@ mixin UserScopedModel on ConnectedProdScopedModel {
     _authenticatedUser = null;
     _authTimer.cancel();
     _userSubject.add(false);
+    _selProdId = null;
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('userEmail');
