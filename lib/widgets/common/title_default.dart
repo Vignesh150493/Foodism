@@ -7,9 +7,15 @@ class TitleDefault extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+
     return Text(
       _title,
-      style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
+      softWrap: true,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+          fontSize: deviceWidth > 700 ? 26.0 : 15.0,
+          fontWeight: FontWeight.bold),
     );
   }
 }

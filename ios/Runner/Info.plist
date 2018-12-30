@@ -26,13 +26,13 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>Location required for product address.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location required for product address</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Image to be used as product image.</string>
+    <string>Image to be used as product image</string>
     <key>NSCameraUsageDescription</key>
-    <string>Image to be used as product image.</string>
+    <string>Image to be used as product image</string>
+	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

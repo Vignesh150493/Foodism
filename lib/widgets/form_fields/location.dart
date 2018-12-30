@@ -5,11 +5,12 @@ import '../../models/location_model.dart';
 import '../../models/product.dart';
 import 'package:location/location.dart' as geoloc;
 import 'dart:async';
+import '../../config_constants.dart';
 
 import 'package:http/http.dart' as http;
 
 class LocationInput extends StatefulWidget {
-  Function setLocation;
+  final Function setLocation;
   final Product product;
 
   LocationInput(this.setLocation, this.product);
@@ -52,7 +53,7 @@ class _LocationInputState extends State<LocationInput> {
       final Uri uri =
           Uri.https('maps.googleapis.com', '/maps/api/geocode/json', {
         'address': address,
-        'key': 'AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4',
+        'key': API_KEY,
       });
       final http.Response response = await http.get(uri);
       final decodedResponse = json.decode(response.body);
@@ -73,7 +74,7 @@ class _LocationInputState extends State<LocationInput> {
     }
 
     final StaticMapProvider staticMapProvider =
-        StaticMapProvider('AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4');
+        StaticMapProvider(API_KEY);
     final Uri staticMapUri = staticMapProvider.getStaticUriWithMarkers([
       Marker('position', 'Position', _locationModel.latitude,
           _locationModel.longtitude),
@@ -95,7 +96,7 @@ class _LocationInputState extends State<LocationInput> {
   Future<String> _getAddress(double lat, double lng) async {
     final Uri uri = Uri.https('maps.googleapis.com', '/maps/api/geocode/json', {
       'latlng': '${lat.toString()},${lng.toString()}',
-      'key': 'AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4',
+      'key': API_KEY,
     });
     final http.Response response = await http.get(uri);
     final decodedResponse = json.decode(response.body);
@@ -105,13 +106,32 @@ class _LocationInputState extends State<LocationInput> {
 
   void _getCurrentLocation() async {
     final location = geoloc.Location();
-    final currentLocation = await location.getLocation();
-    final address = await _getAddress(
-        currentLocation['latitude'], currentLocation['longitude']);
-    _getStaticMap(address,
-        geocode: false,
-        lat: currentLocation['latitude'],
-        lng: currentLocation['longitude']);
+    try {
+      final currentLocation = await location.getLocation();
+      final address = await _getAddress(
+          currentLocation['latitude'], currentLocation['longitude']);
+      _getStaticMap(address,
+          geocode: false,
+          lat: currentLocation['latitude'],
+          lng: currentLocation['longitude']);
+    } catch (error) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text("Could not fetch location"),
+              content: Text("Please add an address manually"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          });
+    }
   }
 
   void _updateLocation() {

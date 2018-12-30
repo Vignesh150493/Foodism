@@ -9,19 +9,20 @@ import 'package:transparent_image/transparent_image.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-  final int index;
 
-  ProductCard(this.product, this.index);
+  ProductCard(this.product);
 
   Widget _buildTitlePriceRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        TitleDefault(product.title),
-        SizedBox(
-          width: 8.0,
+        Flexible(child: TitleDefault(product.title)),
+        Flexible(
+          child: SizedBox(
+            width: 8.0,
+          ),
         ),
-        PriceTag(product.price.toString()),
+        Flexible(child: PriceTag(product.price.toString())),
       ],
     );
   }
@@ -36,19 +37,19 @@ class ProductCard extends StatelessWidget {
                 icon: Icon(Icons.info),
                 color: Theme.of(context).accentColor,
                 onPressed: () {
-                  model.selectProduct(model.allProducts[index].id);
+                  model.selectProduct(product.id);
                   Navigator.pushNamed<bool>(
-                          context, '/product/' + model.allProducts[index].id)
+                          context, '/product/' + product.id)
                       .then((_) => model.selectProduct(null));
                 }),
             IconButton(
-                icon: Icon(model.allProducts[index].isFavourite
+                icon: Icon(product.isFavourite
                     ? Icons.favorite
                     : Icons.favorite_border),
                 color: Colors.red,
                 onPressed: () {
-                  model.selectProduct(model.allProducts[index].id);
-                  model.toggleProductFavouriteStatus();
+//                  model.selectProduct(product.id);
+                  model.toggleProductFavouriteStatus(product);
                 }),
           ],
         );
@@ -75,6 +76,7 @@ class ProductCard extends StatelessWidget {
             height: 10.0,
           ),
           _buildTitlePriceRow(),
+          SizedBox(height: 10.0,),
 //          AddressTag(product.location.address),
           _buildActionButtons(context),
         ],

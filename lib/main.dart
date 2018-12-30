@@ -9,13 +9,14 @@ import 'pages/product_admin.dart';
 import 'pages/product_detail.dart';
 import 'scoped-models/main_scoped_model.dart';
 import 'helpers/custom_route.dart';
+import 'config_constants.dart';
 //import 'package:flutter/rendering.dart';
 
 void main() {
 //  debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
-  MapView.setApiKey('AIzaSyAq862bN5ChEtVqdSGxiw-8ClE47GGrSM4');
+  MapView.setApiKey(API_KEY);
   runApp(MyApp());
 }
 

@@ -178,7 +178,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
 //      'loc_address': locModel.address,
     };
     try {
-      final http.Response response = await http.put(
+      await http.put(
           'https://foodie-products.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
           body: json.encode(dataToUpdate));
 
@@ -222,8 +222,11 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  Future<Null> fetchProducts({onlyForUser = false}) {
+  Future<Null> fetchProducts({onlyForUser = false, clearExisting = false}) {
     _isLoading = true;
+    if(clearExisting) {
+      _products = [];
+    }
     notifyListeners();
     return http
         .get(
@@ -272,11 +275,15 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     });
   }
 
-  void toggleProductFavouriteStatus() async {
+  void toggleProductFavouriteStatus(Product toggledProduct) async {
     final bool isFavourite = selectedProduct.isFavourite;
     final bool newFavouriteStatus = !isFavourite;
 
-    _products[selectedProductIndex] = Product(
+    final int toggledProductIndex = _products.indexWhere((Product product) {
+      return product.id == toggledProduct.id;
+    });
+
+    _products[toggledProductIndex] = Product(
         id: selectedProduct.id,
         title: selectedProduct.title,
         description: selectedProduct.description,
@@ -299,7 +306,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
     }
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      _products[selectedProductIndex] = Product(
+      _products[toggledProductIndex] = Product(
           id: selectedProduct.id,
           title: selectedProduct.title,
           description: selectedProduct.description,
@@ -312,6 +319,7 @@ mixin ProductsScopedModel on ConnectedProdScopedModel {
           isFavourite: !newFavouriteStatus);
       notifyListeners();
     }
+//    _selProdId = null;
   }
 
   void selectProduct(String productId) {
