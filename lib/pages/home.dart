@@ -3,6 +3,7 @@ import '../widgets/productwidgets/product_summary_list.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped-models/main_scoped_model.dart';
 import '../widgets/common/logout_list_tile.dart';
+import '../widgets/ui_elements/adaptive_progress_indicator.dart';
 
 class HomePage extends StatefulWidget {
   final MainScopedModel model;
@@ -56,7 +57,7 @@ class HomePageState extends State<HomePage> {
       if (model.displayedProducts.length > 0 && !model.isLoading) {
         content = ProductList();
       } else if (model.isLoading) {
-        content = Center(child: CircularProgressIndicator());
+        content = Center(child: AdaptiveProgressIndicator());
       }
       return RefreshIndicator(
         child: content,
@@ -71,6 +72,8 @@ class HomePageState extends State<HomePage> {
         drawer: _buildDrawer(context),
         appBar: AppBar(
           title: Text('EasyList'),
+          elevation:
+          Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
           actions: <Widget>[
             ScopedModelDescendant<MainScopedModel>(
               builder: (context, widget, MainScopedModel model) {

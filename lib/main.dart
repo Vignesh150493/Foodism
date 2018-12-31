@@ -10,6 +10,7 @@ import 'pages/product_detail.dart';
 import 'scoped-models/main_scoped_model.dart';
 import 'helpers/custom_route.dart';
 import 'config_constants.dart';
+import 'adaptive_theme.dart';
 //import 'package:flutter/rendering.dart';
 
 void main() {
@@ -55,12 +56,7 @@ class MyAppState extends State<MyApp> {
       model: _model,
       child: MaterialApp(
         // debugShowMaterialGrid: true,
-        theme: ThemeData(
-            brightness: Brightness.light,
-            primarySwatch: Colors.deepOrange,
-            accentColor: Colors.deepPurple,
-            buttonColor: Colors.deepPurple,
-            fontFamily: 'Google'),
+        theme: getAdaptiveThemeData(context),
         routes: {
           '/': (BuildContext context) =>
               !_isAuthenticated ? AuthPage() : HomePage(_model),
