@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:map_view/map_view.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 
 import 'models/product.dart';
 import 'pages/auth.dart';
@@ -30,7 +32,19 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   final MainScopedModel _model = MainScopedModel();
+  final _platformChannel = MethodChannel('platform-channel/battery');
   bool _isAuthenticated = false;
+
+  Future<Null> _getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      final int result = await _platformChannel.invokeMethod('getBatteryLevel');
+      batteryLevel = 'Battery level is $result %';
+    } catch(error) {
+      batteryLevel = 'Failed to get battery level';
+    }
+    print(batteryLevel);
+  }
 
   @override
   void initState() {
@@ -40,6 +54,7 @@ class MyAppState extends State<MyApp> {
         _isAuthenticated = isAuthenticated;
       });
     });
+    _getBatteryLevel();
     _model.autoAuthenticate();
   }
 
