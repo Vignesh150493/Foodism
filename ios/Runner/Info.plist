@@ -11,8 +11,8 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>food_prod</string>
-	<key>CFBundlePackageType</key>
+	<string>Foodism</string>
+	<key>CFBundlePackageType</key> 
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>

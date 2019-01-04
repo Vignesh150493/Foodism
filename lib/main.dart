@@ -71,6 +71,7 @@ class MyAppState extends State<MyApp> {
       model: _model,
       child: MaterialApp(
         // debugShowMaterialGrid: true,
+        title: "Foodism",
         theme: getAdaptiveThemeData(context),
         routes: {
           '/': (BuildContext context) =>
