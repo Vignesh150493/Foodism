@@ -2,6 +2,7 @@ FOODISM
 - Android & IOS app where we post about anything food, do some operations on it,
   and look at what others have posted. 
 - Built using flutter.
+  - Used Scoped model. Just another way of wiring up buisness logic with UI.
 
 IN DEVELOPMENT
 
